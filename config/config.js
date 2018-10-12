@@ -1,0 +1,1 @@
+module.exports.SEED = '@Mobla-Core-Software@MFP1-7';
