@@ -1,7 +1,7 @@
 var express = require('express');
 var bcrypt = require('bcryptjs');
 
-var jwt = require('jsonwebtoken');
+// var jwt = require('jsonwebtoken');
 // var SEED= require('../config/config').SEED;
 
 var mdAutenticacion = require('../middlewares/autenticacion');
