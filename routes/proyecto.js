@@ -10,7 +10,17 @@ var Proyecto=require('../models/proyecto');
 //========================================================
 app.get('/:id', mdAutenticacion.verificarToken, (req,res)=>{
     var id=req.params.id;
-    Proyecto.find({'cliente':id},(err,proyectosCliente)=>{
+    
+    var desde = req.query.desde || 0;
+    desde = Number(desde);
+
+    Proyecto.find({'cliente':id})
+    .skip(desde)
+    .limit(10)
+    .populate('usuarioCreador','nombre email')
+    .populate('usuarioUltimaModificacion', 'nombre email')
+    .exec((err,proyectosCliente)=>{
+
         if(err){
             return res.status(500).json({
                 ok: false,
@@ -27,10 +37,24 @@ app.get('/:id', mdAutenticacion.verificarToken, (req,res)=>{
             });
         }
 
-        res.status(200).json({
-            ok: true,
-            proyectos:proyectosCliente
+        Proyecto.count({ 'cliente': id}, (err, conteoProyectos) => {
+            if(err){
+                return res.status(500).json({
+                    ok: false,
+                    mensaje: 'Error al contar los proyectos',
+                    errors: err
+                });
+            }
+            
+            res.status(200).json({
+                ok: true,
+                mensaje: 'Consulta de proyectos realizada correctamente',
+                proyectos:proyectosCliente,
+                totalProyectos: conteoProyectos
+            });
+
         });
+
     });
 });
 //========================================================
@@ -44,11 +68,13 @@ app.post('/', mdAutenticacion.verificarToken, (req,res)=>{
     var body=req.body;
 
     var proyecto = new Proyecto({
-        nombre:body.nombre,
-        descripcion: body.descripcion,
-        img: body.img,
-        estatus: body.estatus,
-        cliente: body.cliente
+      nombre: body.nombre,
+      descripcion: body.descripcion,
+      img: body.img,
+      estatus: body.estatus,
+      cliente: body.cliente,
+      usuarioCreador: req.usuario._id,
+      usuarioUltimaModificacion: req.usuario._id
     });
 
     proyecto.save( (err, proyectoGuardado)=>{
@@ -79,7 +105,8 @@ app.put('/:id', mdAutenticacion.verificarToken, (req,res)=>{
     var id=req.params.id;
     var body=req.body;
 
-    Proyecto.findById( id, (err, proyecto)=>{
+    Proyecto.findById( id )
+    .exec((err, proyecto)=>{
 
         if(err){
             res.status(500).json({
@@ -102,6 +129,7 @@ app.put('/:id', mdAutenticacion.verificarToken, (req,res)=>{
         proyecto.img=body.img;
         proyecto.estatus=body.estatus;
         proyecto.cliente=body.cliente;
+        proyecto.usuarioUltimaModificacion = req.usuario._id;
 
         proyecto.save((err, proyectoActualizado)=>{
 
