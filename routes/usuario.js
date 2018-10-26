@@ -16,7 +16,14 @@ var Usuario = require("../models/usuario");
 // Obtener todos los usuarios
 //==================================
 app.get("/", mdAutenticacion.verificarToken, (req, res, next) => {
-  Usuario.find({}, "nombre email img role correo").exec((err, usuarios) => {
+
+  var desde = req.query.desde || 0;
+  desde = Number(desde);
+
+  Usuario.find({}, "nombre email img role correo")
+  .skip(desde)
+  .limit(10)
+  .exec((err, usuarios) => {
     if (err) {
       return res.status(500).json({
         ok: false,
@@ -25,11 +32,25 @@ app.get("/", mdAutenticacion.verificarToken, (req, res, next) => {
       });
     }
 
-    res.status(200).json({
-      ok: true,
-      mensaje: "Consulta de usuarios realizada correctamente.",
-      usuarios: usuarios
+    Usuario.count({}, (err, conteoUsuarios)=>{
+
+      if(err){
+        return res.status(500).json({
+          ok: false,
+          mensaje:"Error al contar usuarios",
+          errors: err
+        });
+      }
+      
+      res.status(200).json({
+        ok: true,
+        mensaje: "Consulta de usuarios realizada correctamente.",
+        usuarios: usuarios,
+        totalUsuarios: conteoUsuarios
+      });
+
     });
+
   });
 });
 //==================================
@@ -41,7 +62,7 @@ app.get("/", mdAutenticacion.verificarToken, (req, res, next) => {
 //==================================
     app.put("/:id", mdAutenticacion.verificarToken, (req, res, next) => {
       var id = req.params.id;
-      var body = req.body;
+      var body = req.body;      
 
       Usuario.findById(id, (err, usuario) => {
         if (err) {

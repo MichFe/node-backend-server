@@ -11,14 +11,16 @@ var estatusValidos = {
         'Cerrado'
     ],
     message:'{VALUE} no es un estatus válido'
-}
+};
 
 var proyectoSchema = new Schema({
     nombre: { type:String, required:[ true, 'El nombre del proyecto es requerido'] },
     descripcion:{ type:String, required:[true, 'La descripción del proyecto es requerida'] },
     img: {type:String, required:false },
     cliente:{ type:Schema.Types.ObjectId, ref:'Cliente', required:[true, 'El proyecto debe ser asociado a un cliente'] },
-    estatus:{ type:String, required:true, default:'Concepto', enum:estatusValidos }
+    estatus:{ type:String, required:true, default:'Concepto', enum:estatusValidos },
+    usuarioUltimaModificacion: { type: Schema.Types.ObjectId, ref:'Usuario', required: true },
+    usuarioCreador: { type: Schema.Types.ObjectId, ref:'Usuario', required: true }
 
 });
 

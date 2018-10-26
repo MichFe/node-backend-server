@@ -9,7 +9,15 @@ var Cliente = require('../models/cliente');
 // Obtener todos los clientes
 //==================================
 app.get('/', mdAutenticacion.verificarToken , (req, res)=>{
-    Cliente.find({},(err, clientes)=>{
+    var desde = req.query.desde || 0;
+    desde = Number(desde);
+
+    Cliente.find({})
+    .skip(desde)
+    .limit(10)
+    .populate('usuarioUltimaModificacion', 'nombre email')
+    .populate('usuarioCreador', 'nombre email')
+    .exec((err, clientes)=>{
         if(err){
             return res.status(500).json({
                 ok: false,
@@ -18,11 +26,25 @@ app.get('/', mdAutenticacion.verificarToken , (req, res)=>{
             });
         }
 
-        res.status(200).json({
-            ok:true,
-            mensaje: 'Consulta de clientes realizada exitosamente',
-            clientes: clientes
+        Cliente.count({}, ( err, conteoClientes ) => {
+            
+            if(err){
+                return res.status(500).json({
+                    ok: false,
+                    mensaje:'Error al contar clientes',
+                    errors: err
+                });
+            }
+
+            res.status(200).json({
+                ok:true,
+                mensaje: 'Consulta de clientes realizada exitosamente',
+                clientes: clientes,
+                totalClientes: conteoClientes
+            });
+
         });
+
     });
 });
 //==================================
@@ -41,7 +63,9 @@ app.post('/', mdAutenticacion.verificarToken, (req, res)=>{
         direccion: body.direccion,
         email: body.email,
         img: body.img,
-        estatus: body.estatus
+        estatus: body.estatus,
+        usuarioCreador: req.usuario._id,
+        usuarioUltimaModificacion: req.usuario._id
 
     });
 
@@ -74,21 +98,25 @@ app.put('/:id', mdAutenticacion.verificarToken, (req, res)=>{
     var id = req.params.id;
     var body=req.body;
 
-    Cliente.findById(id, (err, cliente)=>{
-
-        if(err){
-            return res.status(500).json({
-                ok: false,
-                mensaje: 'Error al buscar cliente',
-                errors: err
+    Cliente.findById(id)
+      .exec((err, cliente) => {
+        if (err) {
+          return res
+            .status(500)
+            .json({
+              ok: false,
+              mensaje: "Error al buscar cliente",
+              errors: err
             });
         }
 
-        if(!cliente){
-            return res.status(400).json({
-                ok: false,
-                mensaje: 'El cliente con el id: ' + id + ', no existe',
-                errors: {message: 'No existe un cliente con ese ID'} 
+        if (!cliente) {
+          return res
+            .status(400)
+            .json({
+              ok: false,
+              mensaje: "El cliente con el id: " + id + ", no existe",
+              errors: { message: "No existe un cliente con ese ID" }
             });
         }
 
@@ -98,26 +126,28 @@ app.put('/:id', mdAutenticacion.verificarToken, (req, res)=>{
         cliente.direccion = body.direccion;
         cliente.email = body.email;
         cliente.img = body.img;
+        cliente.usuarioUltimaModificacion = req.usuario._id;
 
-        cliente.save( (err, clienteActualizado)=>{
+        cliente.save((err, clienteActualizado) => {
+          if (err) {
+            return res
+              .status(400)
+              .json({
+                ok: false,
+                mensaje: "Error al actualizar cliente",
+                errors: err
+              });
+          }
 
-            if(err){
-                return res.status(400).json({
-                    ok: false,
-                    mensaje: 'Error al actualizar cliente',
-                    errors: err
-                });
-            }
-
-            res.status(200).json({
-                ok: true,
-                mensaje: 'Cliente actualizado exitosamente',
-                cliente: clienteActualizado
+          res
+            .status(200)
+            .json({
+              ok: true,
+              mensaje: "Cliente actualizado exitosamente",
+              cliente: clienteActualizado
             });
-
-
         });
-    });
+      });
 });
 //==================================
 // FIN de Actualizar un cliente

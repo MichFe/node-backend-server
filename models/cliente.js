@@ -18,7 +18,9 @@ var clienteSchema = new Schema({
     direccion: { type:String, required: [true, 'El domicilio del cliente es requerido'] },
     email: { type: String, required:false },
     img: { type:String, required:false },
-    estatus: { type: String, required: true, default: 'Activo', enum: estatusValidos }
+    estatus: { type: String, required: true, default: 'Activo', enum: estatusValidos },
+    usuarioUltimaModificacion: { type: Schema.Types.ObjectId, ref:'Usuario', required:true },
+    usuarioCreador: { type: Schema.Types.ObjectId, ref:'Usuario', required: true }
 });
 
 module.exports = mongoose.model( 'Cliente', clienteSchema );
