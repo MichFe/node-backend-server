@@ -5,7 +5,7 @@ var bodyParser = require('body-parser');
 var cors = require('cors');
 
 //Config variables
-var CORS_OPTIONS = require("../config/config").CORS_OPTIONS;
+var CORS_OPTIONS = require("./config/config").CORS_OPTIONS;
 
 //Inicializar variables
 var app=express();
