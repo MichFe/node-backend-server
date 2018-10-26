@@ -27,6 +27,7 @@ var loginRoutes = require('./routes/login');
 var clienteRoutes = require('./routes/cliente');
 var proyectoRoutes =  require('./routes/proyecto');
 var calendarioRoutes =  require('./routes/calendario');
+var validarTokenRoutes = require('./routes/validarToken.js');
 
 //Conexion a base de datos
 mongoose.connection.openUri('mongodb://localhost:27017/moblaDB', (err, res)=>{
@@ -43,6 +44,7 @@ app.use('/login', loginRoutes);
 app.use('/cliente', clienteRoutes);
 app.use('/proyecto', proyectoRoutes);
 app.use('/calendario', calendarioRoutes);
+app.use('/validarToken', validarTokenRoutes);
 app.use('/', appRoutes);
 
 
