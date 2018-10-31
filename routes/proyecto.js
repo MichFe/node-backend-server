@@ -14,7 +14,7 @@ app.get('/:id', mdAutenticacion.verificarToken, (req,res)=>{
     var desde = req.query.desde || 0;
     desde = Number(desde);
 
-    Proyecto.find({'cliente':id})
+    Proyecto.find({'clienteId':id})
     .skip(desde)
     .limit(10)
     .populate('usuarioCreador','nombre email')
@@ -37,7 +37,7 @@ app.get('/:id', mdAutenticacion.verificarToken, (req,res)=>{
             });
         }
 
-        Proyecto.count({ 'cliente': id}, (err, conteoProyectos) => {
+        Proyecto.count({ 'clienteId': id}, (err, conteoProyectos) => {
             if(err){
                 return res.status(500).json({
                     ok: false,
@@ -68,13 +68,16 @@ app.post('/', mdAutenticacion.verificarToken, (req,res)=>{
     var body=req.body;
 
     var proyecto = new Proyecto({
-      nombre: body.nombre,
-      descripcion: body.descripcion,
-      img: body.img,
-      estatus: body.estatus,
-      cliente: body.cliente,
-      usuarioCreador: req.usuario._id,
-      usuarioUltimaModificacion: req.usuario._id
+
+        nombre: body.nombre,
+        descripcion: body.descripcion,
+        img: body.img,
+        clienteId: body.clienteId,
+        estatus: body.estatus,
+        usuarioUltimaModificacion: body.usuarioUltimaModificacion,
+        usuarioCreador: body.usuarioCreador,
+        chatId: body.chatId
+
     });
 
     proyecto.save( (err, proyectoGuardado)=>{
@@ -128,7 +131,7 @@ app.put('/:id', mdAutenticacion.verificarToken, (req,res)=>{
         proyecto.descripcion=body.descripcion;
         proyecto.img=body.img;
         proyecto.estatus=body.estatus;
-        proyecto.cliente=body.cliente;
+        proyecto.clienteId=body.clienteId;
         proyecto.usuarioUltimaModificacion = req.usuario._id;
 
         proyecto.save((err, proyectoActualizado)=>{
