@@ -139,6 +139,8 @@ app.post('/', mdAutenticacion.verificarToken, (req, res, next) =>{
             });
             
         }
+
+        usuarioGuardado.password = "PRIVATE";
         
         res.status(201).json({
             ok:true,
