@@ -1,5 +1,4 @@
 var mongoose = require('mongoose');
-var Usuario = require('../models/usuario');
 // var uniqueValidator = require('mongoose-unique-validator');
 
 var Schema = mongoose.Schema;

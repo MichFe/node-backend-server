@@ -7,7 +7,8 @@ var Schema = mongoose.Schema;
 var rolesValidos = {
     values:[
         'ADMIN_ROLE',
-        'USER_ROLE'
+        'USER_ROLE',
+        'AGENTE_VENTAS_ROLE'
     ],
     message:'{VALUE} no es un rol válido'
 };
