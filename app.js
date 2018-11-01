@@ -28,6 +28,7 @@ var clienteRoutes = require('./routes/cliente');
 var proyectoRoutes =  require('./routes/proyecto');
 var calendarioRoutes =  require('./routes/calendario');
 var validarTokenRoutes = require('./routes/validarToken');
+var busquedaRoutes = require('./routes/busqueda');
 var chatRoutes = require('./routes/chat');
 
 //Conexion a base de datos
@@ -47,6 +48,7 @@ app.use('/proyecto', proyectoRoutes);
 app.use('/calendario', calendarioRoutes);
 app.use('/validarToken', validarTokenRoutes);
 app.use('/chat', chatRoutes);
+app.use('/busqueda', busquedaRoutes);
 app.use('/', appRoutes);
 
 
