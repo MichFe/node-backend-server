@@ -10,7 +10,7 @@ var tiposValidos = {
 };
 
 var chatSchema = new Schema({
-  usuario: { type: Schema.Types.Mixed, required: [true, 'El usuario que envía el mensaje es requerido'] },
+  usuario: { type: Schema.Types.ObjectId, ref:'Usuario', required: [true, 'El usuario que envía el mensaje es requerido'] },
     tipo: { type: String, required: [true, 'El tipo de chat es requerido'], enum:tiposValidos },
     proyectoId: { type: Schema.Types.ObjectId, ref:'Proyecto',required: true },
     fecha: { type: Date, required: [true, 'La fecha es requerida'] },

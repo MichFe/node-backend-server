@@ -12,6 +12,7 @@ app.get('/:idProyecto', mdAutenticacion.verificarToken, (req, res) => {
     chatsCargados = Number(chatsCargados);
 
         Chat.find({ 'proyectoId': proyectoId })
+                .populate( 'usuario', '-password' )
                 .sort('-fecha')
                 .limit(5)
                 .skip(chatsCargados)
