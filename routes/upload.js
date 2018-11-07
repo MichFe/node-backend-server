@@ -4,6 +4,7 @@ var UPLOADS_PATH = require("../config/config").UPLOADS_PATH;
 var fileUpload =  require('express-fileupload');
 var fs = require('fs');
 
+//Importación de modelos
 var Usuario = require('../models/usuario');
 var Cliente = require("../models/cliente");
 var Proyecto = require("../models/proyecto");
@@ -106,6 +107,7 @@ app.put('/imagen/:tipo/:id', (req, res, next) => {
                 if( fs.existsSync(oldPath) ){
 
                     fs.unlink(oldPath, (err)=>{
+                        
                         if(err){
                             return res.status(500).json({
                                 ok: false,
@@ -144,7 +146,8 @@ app.put('/imagen/:tipo/:id', (req, res, next) => {
 
         if (coleccion === 'cliente') {
 
-            Cliente.findById(id, (err,cliente)=>{
+            Cliente.findById(id, (err, cliente)=>{
+                
                 if(err){
                     return res.status(500).json({
                         ok:false,
@@ -153,16 +156,20 @@ app.put('/imagen/:tipo/:id', (req, res, next) => {
                     });
                 }
 
-                var oldPath = UPLOADS_PATH + `${ tipo }/` + cliente.img
+                var oldPath = UPLOADS_PATH + `${ tipo }/` + cliente.img;
 
                 if( fs.existsSync(oldPath) ){
 
                     fs.unlink( oldPath, (err)=>{
-                        return res.status(500).json({
-                            ok: false,
-                            mensaje: 'Error al eliminar imagen anterior',
-                            errors: err
-                        });
+
+                        if(err){
+                            return res.status(500).json({
+                                ok: false,
+                                mensaje: 'Error al eliminar imagen anterior',
+                                errors: err
+                            });
+                        }
+
                     });
 
                 }
@@ -192,7 +199,7 @@ app.put('/imagen/:tipo/:id', (req, res, next) => {
 
         if (coleccion === 'proyecto') {
 
-            Proyecto.findById( id, (err,proyecto)=>{
+            Proyecto.findById( id, (err, proyecto)=>{
                 if(err){
                     return res.status(400).json({
                         ok: false,
@@ -206,12 +213,13 @@ app.put('/imagen/:tipo/:id', (req, res, next) => {
                 if(fs.existsSync(oldPath)){
 
                     fs.unlink( oldPath, (err)=>{
-
+                        if(err){
                             return res.status(500).json({
                                 ok: false,
                                 mensaje: 'Error al eliminar imagen anterior',
                                 errors: err
                             });
+                        }
                         
                     });
 
@@ -244,7 +252,7 @@ app.put('/imagen/:tipo/:id', (req, res, next) => {
 
         if (coleccion === 'producto') {
 
-            Producto.findById(id, 'codigo nombre familia img', (err, producto)=>{
+            Producto.findById(id, 'codigo nombre familia img precio', (err, producto)=>{
 
                 if(err){
                     return res.status(400).json({
@@ -259,11 +267,13 @@ app.put('/imagen/:tipo/:id', (req, res, next) => {
                 if( fs.existsSync(oldPath) ){
 
                     fs.unlink( oldPath, (err)=>{
-                        return res.status(500).json({
-                            ok: false,
-                            mensaje: 'Error al eliminar imagen anterior',
-                            errors: err
-                        });
+                        if(err){
+                            return res.status(500).json({
+                                ok: false,
+                                mensaje: 'Error al eliminar imagen anterior',
+                                errors: err
+                            });
+                        }
                     });
 
                 }

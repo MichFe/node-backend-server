@@ -32,15 +32,18 @@ var busquedaRoutes = require('./routes/busqueda');
 var uploadRoutes = require('./routes/upload');
 var chatRoutes = require('./routes/chat');
 var imagenesRoutes = require('./routes/imagenes');
+var productoRoutes = require('./routes/producto');
 
 //Conexion a base de datos
-mongoose.connection.openUri('mongodb://localhost:27017/moblaDB', (err, res)=>{
-     
+mongoose.set("useCreateIndex", true);
+mongoose.connection.openUri('mongodb://localhost:27017/moblaDB',{ useNewUrlParser:true },(err, res)=>{
+
 if( err ) throw err;
 
     console.log('Base de datos: \x1b[32m %s\x1b[0m', 'online');
      
 });
+
 
 //Rutas
 app.use('/usuario', usuarioRoutes);
@@ -53,6 +56,7 @@ app.use('/chat', chatRoutes);
 app.use('/busqueda', busquedaRoutes);
 app.use('/upload', uploadRoutes);
 app.use('/img', imagenesRoutes);
+app.use('/producto', productoRoutes);
 app.use('/', appRoutes);
 
 

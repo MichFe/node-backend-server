@@ -17,7 +17,7 @@ app.get('/:tipo/:img', (req, res, next) => {
         return res.sendFile( pathImagen );
     }else{
         
-        let pathDefault = path.resolve( __dirname, `../uploads/no-image.jpg`);
+        let pathDefault = path.resolve( __dirname, `../uploads/no-image.png`);
 
         switch(tipo){
             case 'usuario':
@@ -25,6 +25,7 @@ app.get('/:tipo/:img', (req, res, next) => {
             break;
 
             default:
+                pathdefault = path.resolve( __dirname, `../uploads/no-image.png`);
 
         }
 

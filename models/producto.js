@@ -4,23 +4,42 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 // Tipos de mensajes válidos
-var tiposValidos = {
-    values: ["texto", "audio", "imagen"],
-    message: "{VALUE} no es un estatus válido"
+var familiasValidas = {
+  values: [
+    "Credenzas",
+    "Mesas",
+    "Cómodas",
+    "Sillas",
+    "Sillones",
+    "Bancas",
+    "Bancos",
+    "Libreros",
+    "Lámparas",
+    "Ocasionales",
+    "Salas",
+    "Cabeceras",
+    "Bases de Cama",
+    "Libreros"
+  ],
+  message: "{VALUE} no es una familia de productos válida"
 };
 
 var productoSchema = new Schema({
 
     codigo: { type: String, required: [true, 'El código del producto es requerido'] },
-    nombre: { type: String, required: [true, 'El nombre de producto es requerido'], enum: tiposValidos },
-    familia: { type: String, required: true },
-    img: { type: String, required: true},
+    nombre: { type: String, required: [true, 'El nombre de producto es requerido'] },
+    familia: { type: String, required: [true, 'La familia del producto es requerida'], enum: familiasValidas },
+    precio: { type: Number, requires: [true, "El precio del producto es requerido"] },
+    img: { type: String, required: false },
     tCarpinteria: { type: Number, required: false},
     tPulido1: { type: Number, required: false },
     tFondo: { type: Number, required: false },
     tPulido2: { type: Number, required: false },
     tTerminado: { type: Number, required: false },
-    tEmpaque: { type: Number, required: false }
+    tEmpaque: { type: Number, required: false },
+    usuarioUltimaModificacion: { type: Schema.Types.ObjectId, ref: 'Usuario', required: true },
+    usuarioCreador: { type: Schema.Types.ObjectId, ref: 'Usuario', required: true }
+
 
 });
 
