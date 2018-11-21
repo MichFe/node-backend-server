@@ -57,11 +57,11 @@ app.get('/', mdAutenticacion.verificarToken, (req, res) => {
         });
 });
 //========================================================
-// FIN de Obtener todos los productos de un cliente
+// FIN de Obtener todos los productos
 //========================================================
 
 //========================================================
-// Obtener todos los productos de un cliente
+// Obtener productos por familia
 //========================================================
 app.get('/familia/:familia', mdAutenticacion.verificarToken, (req, res) => {
     var familia = req.params.familia;
@@ -113,7 +113,7 @@ app.get('/familia/:familia', mdAutenticacion.verificarToken, (req, res) => {
         });
 });
 //========================================================
-// FIN de Obtener todos los productos de un cliente
+// FIN de Obtener productos por familia
 //========================================================
 
 //========================================================

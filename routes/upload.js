@@ -3,6 +3,7 @@ var UPLOADS_PATH = require("../config/config").UPLOADS_PATH;
 
 var fileUpload =  require('express-fileupload');
 var fs = require('fs');
+var jimp = require('jimp');
 
 //Importación de modelos
 var Usuario = require('../models/usuario');
@@ -50,7 +51,7 @@ app.put('/imagen/:tipo/:id', (req, res, next) => {
     var extension = nombreCortado[nombreCortado.length - 1];
 
     //Extensiones aceptadas
-    var extensionesValidas = ['png', 'jpg', 'gif', 'jpeg' ];
+    var extensionesValidas = ['png', 'jpg', 'gif', 'jpeg', 'JPG' ];
 
     //Validamos que la extensión del archivo sea válida
     if( extensionesValidas.indexOf(extension) < 0){
@@ -79,6 +80,9 @@ app.put('/imagen/:tipo/:id', (req, res, next) => {
             });
         }
 
+        //Resize de imagen con jimp para que sea mas pequeña
+        resizeImage( path, 200 );
+
         asignarImagen( tipo, id, nombreArchivo, res);
 
         // return res.status(200).json({
@@ -87,6 +91,28 @@ app.put('/imagen/:tipo/:id', (req, res, next) => {
         //        extesion: extension
         // });
     });
+
+    function resizeImage( path, width ){
+        jimp.read(path)
+            .then(
+                (image) => {
+                    image
+                        .resize( width, jimp.AUTO)
+                        .write(path);
+                }
+            )
+            .catch(
+                (err) => {
+                    if (err) {
+                        return res.status(500).json({
+                            ok: false,
+                            mensaje: 'Error al cambiar tamaño de la imagen',
+                            errors: err
+                        });
+                    }
+                }
+            );
+    }
 
     function asignarImagen( coleccion, id, nombreArchivo, res){
 
