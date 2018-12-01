@@ -69,7 +69,11 @@ app.post('/', mdAutenticacion.verificarToken, (req, res) => {
       carrito: req.body.carrito,
       tipoDePago: req.body.tipoDePago,
       cliente: req.body.cliente,
-      efectivoRecibido: req.body.efectivoRecibido
+      montoPagado: req.body.montoPagado,
+      saldoPendiente: req.body.saldoPendiente,
+      estatus: req.body.estatus,
+      proyecto: req.body.proyecto
+
     });
 
     venta.save((err, ventaGuardada) => {

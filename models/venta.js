@@ -1,7 +1,14 @@
 var mongoose = require('mongoose');
-var Producto = require('./producto');
 
 var Schema = mongoose.Schema;
+
+var estatusVenta = {
+    values: [
+        'Liquidada',
+        'Saldo Pendiente'
+    ],
+    message: '{VALUE} no es un estatus válido'
+};
 
 var ventaSchema = new Schema({
     subtotal: { type: Number, required:true },
@@ -11,8 +18,11 @@ var ventaSchema = new Schema({
     fecha: { type: Date, required: true },
     carrito: [{}],
     tipoDePago: { type: String, required: true },
-    cliente: { type: Schema.Types.ObjectId, ref: 'Cliente', required: false },
-    efectivoRecibido: { type: Number, required: false }
+    cliente: { type: Schema.Types.ObjectId, ref: 'Cliente', required: true },
+    proyecto: { type: Schema.Types.ObjectId, ref: 'Proyecto', required: false },
+    montoPagado: { type: Number, required: true },
+    saldoPendiente: { type: Number, required: true },
+    estatus: { type: String, required: true, enum: estatusVenta }
 });
 
 
