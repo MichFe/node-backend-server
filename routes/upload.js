@@ -51,7 +51,7 @@ app.put('/imagen/:tipo/:id', (req, res, next) => {
     var extension = nombreCortado[nombreCortado.length - 1];
 
     //Extensiones aceptadas
-    var extensionesValidas = ['png', 'jpg', 'gif', 'jpeg', 'JPG' ];
+    var extensionesValidas = ['png', 'jpg', 'gif', 'jpeg', 'JPG', 'PNG' ];
 
     //Validamos que la extensión del archivo sea válida
     if( extensionesValidas.indexOf(extension) < 0){

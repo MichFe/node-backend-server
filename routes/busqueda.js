@@ -5,6 +5,7 @@ var app=express();
 
 
 var Cliente = require('../models/cliente');
+var Producto = require('../models/producto');
 
 
 app.get('/coleccion/:tabla/:busqueda', mdAutenticacion.verificarToken,(req,res)=>{
@@ -25,6 +26,10 @@ app.get('/coleccion/:tabla/:busqueda', mdAutenticacion.verificarToken,(req,res)=
             promesa = buscarProyecto(busqueda, regex);
             break;
 
+        case 'producto':
+            promesa = buscarProducto(busqueda, regex);
+            break;
+
         default:
             return res.status(400).json({
                 ok: false,
@@ -34,12 +39,20 @@ app.get('/coleccion/:tabla/:busqueda', mdAutenticacion.verificarToken,(req,res)=
             
     }
 
-    promesa.then( data =>{
+    promesa
+        .then( data =>{
         res.status(200).json({
             ok: true,
             [tabla]: data
         });
     })
+        .catch( (err) =>{
+            res.status(500).json({
+                ok:false,
+                mensaje:'Error al ejecutar busqueda',
+                error: { message: err }
+            });
+        });
 
 
 });
@@ -58,6 +71,21 @@ function buscarCliente( busqueda, regex ){
 
     });
 
+}
+
+function buscarProducto( buqueda, regex){
+
+    return new Promise((resolve, reject)=>{
+
+        Producto.find({nombre: regex}, (err, productos)=>{
+            if(err){
+                reject('Error a buscar cliente',err);
+            }else{
+                resolve(productos);
+            }
+        });
+
+    });
 }
 
 module.exports = app;
