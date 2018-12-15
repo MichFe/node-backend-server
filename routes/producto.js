@@ -197,7 +197,7 @@ app.put('/:id', mdAutenticacion.verificarToken, (req, res) => {
 
                 res.status(200).json({
                     ok: true,
-                    mensaje: 'El producto se actualizo exitosamente',
+                    mensaje: 'El producto se actualizó exitosamente',
                     producto: productoActualizado
                 });
             });
