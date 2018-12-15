@@ -34,6 +34,7 @@ var chatRoutes = require('./routes/chat');
 var imagenesRoutes = require('./routes/imagenes');
 var productoRoutes = require('./routes/producto');
 var ventaRoutes = require('./routes/venta');
+var requisicionRoutes = require('./routes/requisicion');
 
 //Conexion a base de datos
 mongoose.set("useCreateIndex", true);
@@ -59,6 +60,7 @@ app.use('/upload', uploadRoutes);
 app.use('/img', imagenesRoutes);
 app.use('/producto', productoRoutes);
 app.use('/venta', ventaRoutes);
+app.use('/requisicion', requisicionRoutes);
 app.use('/', appRoutes);
 
 
