@@ -72,7 +72,8 @@ app.post('/', mdAutenticacion.verificarToken, (req, res) => {
       montoPagado: req.body.montoPagado,
       saldoPendiente: req.body.saldoPendiente,
       estatus: req.body.estatus,
-      proyecto: req.body.proyecto
+      proyecto: req.body.proyecto,
+      unidadDeNegocio: req.body.unidadDeNegocio
 
     });
 

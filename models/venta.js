@@ -10,6 +10,15 @@ var estatusVenta = {
     message: '{VALUE} no es un estatus válido'
 };
 
+var unidadesDeNegocio = {
+    values: [
+        'Fabrica',
+        'Tienda León',
+        'Tienda Guadalajara'
+    ],
+    message: '{VALUE} no es una unidad de negocio válida'
+};
+
 var ventaSchema = new Schema({
     subtotal: { type: Number, required:true },
     iva: { type: Number, required: true },
@@ -22,7 +31,8 @@ var ventaSchema = new Schema({
     proyecto: { type: Schema.Types.ObjectId, ref: 'Proyecto', required: false },
     montoPagado: { type: Number, required: true },
     saldoPendiente: { type: Number, required: true },
-    estatus: { type: String, required: true, enum: estatusVenta }
+    estatus: { type: String, required: true, enum: estatusVenta },
+    unidadDeNegocio: { type: String, required: true, enum: unidadesDeNegocio }
 });
 
 

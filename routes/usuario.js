@@ -20,7 +20,7 @@ app.get("/", mdAutenticacion.verificarToken, (req, res, next) => {
   var desde = req.query.desde || 0;
   desde = Number(desde);
 
-  Usuario.find({}, "nombre email img role correo")
+  Usuario.find({}, "nombre email img role correo unidadDeNegocio")
   .skip(desde)
   .limit(10)
   .exec((err, usuarios) => {
@@ -85,9 +85,11 @@ app.get("/", mdAutenticacion.verificarToken, (req, res, next) => {
             });
         }
 
-        usuario.nombre = body.nombre;
-        usuario.email = body.email;
-        usuario.role = body.role;
+        (body.nombre!='')?usuario.nombre = body.nombre:null;
+        (body.email!='')?(usuario.email = body.email):null;
+        (body.role!='')?(usuario.role = body.role):null;
+        (body.unidadDeNegocio!='')?usuario.unidadDeNegocio = body.unidadDeNegocio:null;
+
 
         usuario.save((err, usuarioGuardado) => {
           if (err) {
@@ -127,7 +129,8 @@ app.post('/', mdAutenticacion.verificarToken, (req, res, next) =>{
       email: body.email,
       password: bcrypt.hashSync( body.password, 10 ),
       img: body.img,
-      role: body.role
+      role: body.role,
+      unidadDeNegocio: body.unidadDeNegocio
     });
 
     usuario.save( ( err, usuarioGuardado )=>{
