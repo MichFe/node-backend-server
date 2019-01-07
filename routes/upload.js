@@ -118,7 +118,7 @@ app.put('/imagen/:tipo/:id', (req, res, next) => {
 
         if (coleccion === 'usuario'){
             Usuario.findById(id, (err, usuario)=>{
-
+        
                 if(err){
                     return res.status(400).json({
                            ok: false,
