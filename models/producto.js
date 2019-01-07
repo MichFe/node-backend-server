@@ -29,7 +29,7 @@ var productoSchema = new Schema({
     codigo: { type: String, required: [true, 'El código del producto es requerido'] },
     nombre: { type: String, required: [true, 'El nombre de producto es requerido'] },
     familia: { type: String, required: [true, 'La familia del producto es requerida'], enum: familiasValidas },
-    precio: { type: Number, requires: [true, "El precio del producto es requerido"] },
+    precio: { type: Number, required: [true, "El precio del producto es requerido"] },
     img: { type: String, required: false },
     tCarpinteria: { type: Number, required: false},
     tPulido1: { type: Number, required: false },

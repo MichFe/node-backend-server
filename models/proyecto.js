@@ -21,7 +21,7 @@ var proyectoSchema = new Schema({
     estatus:{ type:String, required:true, default:'Concepto', enum:estatusValidos },
     usuarioUltimaModificacion: { type: Schema.Types.ObjectId, ref:'Usuario', required: true },
     usuarioCreador: { type: Schema.Types.ObjectId, ref:'Usuario', required: true },
-    chatId:{ type:String, require:false }
+    chatId:{ type:String, required:false }
 });
 
 module.exports = mongoose.model('Proyecto', proyectoSchema);
