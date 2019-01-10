@@ -19,7 +19,10 @@ var familiasValidas = {
     "Salas",
     "Cabeceras",
     "Bases de Cama",
-    "Libreros"
+    "Libreros",
+    "Cuadros",
+    "Tapetes",
+    "Accesorios"
   ],
   message: "{VALUE} no es una familia de productos válida"
 };
