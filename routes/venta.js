@@ -16,7 +16,9 @@ app.get('/', mdAutenticacion.verificarToken, (req, res) => {
       .skip(desde)
       .limit(10)
       .populate("vendedor", "nombre email")
-      .populate("venta", "nombre")
+      .populate("cliente", "id nombre")
+      .populate("proyecto", "id nombre")
+      .sort("-fecha")
       .exec((err, ventas) => {
         if (err) {
           return res
