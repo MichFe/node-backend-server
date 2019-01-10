@@ -10,6 +10,7 @@ var Usuario = require('../models/usuario');
 var Cliente = require("../models/cliente");
 var Proyecto = require("../models/proyecto");
 var Producto = require("../models/producto");
+var Chat = require("../models/chat");
 
 var app = express();
 
@@ -22,7 +23,7 @@ app.put('/imagen/:tipo/:id', (req, res, next) => {
     var id = req.params.id;
 
     //Colecciones válidas
-    var coleccionesValidas = ['usuario', 'cliente', 'proyecto', 'producto'];
+    var coleccionesValidas = ['usuario', 'cliente', 'proyecto', 'producto', 'chat'];
     
     //Validando coleccion
     if( coleccionesValidas.indexOf(tipo) < 0 ){
@@ -168,6 +169,59 @@ app.put('/imagen/:tipo/:id', (req, res, next) => {
                 });
 
             });
+        }
+
+        if (coleccion === 'chat') {
+
+            Chat.findById(id, (err, chat) => {
+
+                if (err) {
+                    return res.status(500).json({
+                        ok: false,
+                        mensaje: 'El chat no existe',
+                        errors: err
+                    });
+                }
+
+                var oldPath = UPLOADS_PATH + `${tipo}/` + chat.img;
+
+                if (fs.existsSync(oldPath)) {
+
+                    fs.unlink(oldPath, (err) => {
+
+                        if (err) {
+                            return res.status(500).json({
+                                ok: false,
+                                mensaje: 'Error al eliminar imagen anterior',
+                                errors: err
+                            });
+                        }
+
+                    });
+
+                }
+
+                chat.img = nombreArchivo;
+
+                chat.save((err, chatActualizado) => {
+
+                    if (err) {
+                        return res.status(500).json({
+                            ok: false,
+                            mensaje: 'Error al actualizar chat',
+                            errors: err
+                        });
+                    }
+
+                    return res.status(200).json({
+                        ok: true,
+                        mensaje: 'Chat actualizado exitosamente',
+                        cliente: chatActualizado
+                    });
+                });
+
+            });
+
         }
 
         if (coleccion === 'cliente') {
