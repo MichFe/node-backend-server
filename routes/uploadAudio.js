@@ -57,7 +57,7 @@ app.put( '/:coleccion/:id', (req, res)=>{
         if(err){
             return res.status(500).json({
                    ok: false,
-                   mensaje: 'error al mover archivo',
+                   mensaje: 'Error al mover archivo',
                    errors: err
             });
         }
