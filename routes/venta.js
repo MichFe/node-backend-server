@@ -5,9 +5,9 @@ var app = express();
 
 var Venta = require('../models/venta');
 
-//==================================
-// Obtener todas las ventas
-//==================================
+//======================================================
+// Obtener ventas paginadas de 10 en 10
+//======================================================
 app.get('/', mdAutenticacion.verificarToken, (req, res) => {
     var desde = req.query.desde || 0;
     desde = Number(desde);
@@ -52,9 +52,9 @@ app.get('/', mdAutenticacion.verificarToken, (req, res) => {
         });
       });
 });
-//==================================
-// FIN de Obtener todas las ventas
-//==================================
+//======================================================
+// Obtener ventas paginadas de 10 en 10
+//======================================================
 
 //==================================
 // Crear venta
