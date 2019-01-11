@@ -85,10 +85,10 @@ app.get("/", mdAutenticacion.verificarToken, (req, res, next) => {
             });
         }
 
-        (body.nombre!='')?usuario.nombre = body.nombre:null;
-        (body.email!='')?(usuario.email = body.email):null;
-        (body.role!='')?(usuario.role = body.role):null;
-        (body.unidadDeNegocio!='')?usuario.unidadDeNegocio = body.unidadDeNegocio:null;
+        ( body.nombre && body.nombre != '' )?usuario.nombre = body.nombre:null;
+        ( body.email && body.email!='' )?(usuario.email = body.email):null;
+        ( body.role && body.role!='' )?(usuario.role = body.role):null;
+        ( body.unidadDeNegocio && body.unidadDeNegocio!='' )?usuario.unidadDeNegocio = body.unidadDeNegocio:null;
 
 
         usuario.save((err, usuarioGuardado) => {
