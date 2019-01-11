@@ -1,5 +1,8 @@
 var express = require('express');
 var mdAutenticacion = require('../middlewares/autenticacion');
+var fs = require('fs');
+
+var UPLOADS_PATH = require("../config/config").UPLOADS_PATH;
 
 var app = express();
 
@@ -229,6 +232,22 @@ app.delete('/:id', mdAutenticacion.verificarToken, (req, res) => {
                 ok: false,
                 mensaje: 'El producto id: ' + id + ', no existe',
                 errors: { message: 'El producto que se desea eliminar no existe en la base de datos' }
+            });
+        }
+
+        //Creamos la ruta que tendría la imagen del producto
+        var oldPath = UPLOADS_PATH + `producto/${ productoEliminado.img }`;
+
+        //Verificamos si existía una imagen para el producto y la eliminamos
+        if( fs.existsSync(oldPath) ){
+            fs.unlink(oldPath, (err)=>{
+                if (err) {
+                    return res.status(500).json({
+                        ok: false,
+                        mensaje: 'Error al eliminar imagen anterior',
+                        errors: err
+                    });
+                }
             });
         }
 
