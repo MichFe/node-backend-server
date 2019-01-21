@@ -96,7 +96,7 @@ app.put( '/:coleccion/:id', (req, res)=>{
 
                     return res.status(200).json({
                         ok: true,
-                        mensaje: "Chatde audio guardado exitosamente",
+                        mensaje: "Chat de audio guardado exitosamente",
                         chat: chatActualizado
                     });
 
