@@ -1,5 +1,8 @@
 var express = require('express');
+var UPLOADS_PATH = require("../config/config").UPLOADS_PATH;
+
 var mdAutenticacion = require('../middlewares/autenticacion');
+var fs = require("fs");
 
 var app = express();
 
@@ -92,6 +95,83 @@ app.post('/', mdAutenticacion.verificarToken, (req,res)=>{
 
 
 });
+
+app.delete('/:id', mdAutenticacion.verificarToken, ( req, res )=>{
+    var id = req.params.id;
+
+    Chat.findByIdAndDelete(id)
+        .exec( (err, chatEliminado)=>{
+
+            if(err){
+                return res.status(500).json({
+                    ok: false,
+                    mensaje: 'Error al eliminar mensaje',
+                    errors: err
+                });
+            }
+
+            if(!chatEliminado){
+                return res.status(400).json({
+                    ok: false,
+                    mensaje: 'No hay mensajes que coincidan con el id: ' + id,
+                    errors: { message: 'No hay ningun mensaje que coincida con el id: ' + id }
+                });
+            }
+
+            if(chatEliminado.img){
+                eliminarImagen(chatEliminado.img);
+            }
+
+            if (chatEliminado.audio){
+                eliminarAudio(chatEliminado.audio);
+            }
+
+            res.status(200).json({
+                ok: true,
+                mensaje: 'El mensaje se ha eliminado exitosamente',
+                chatEliminado: chatEliminado
+            });
+
+        });
+
+});
+
+
+function eliminarImagen(path){
+    var oldPath = UPLOADS_PATH + `chat/` + path;
+
+    if (fs.existsSync(oldPath)) {
+
+        fs.unlink(oldPath, (err) => {
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    mensaje: 'Error al eliminar imagen',
+                    errors: err
+                });
+            }
+        });
+
+    }
+}
+
+function eliminarAudio(path) {
+    var oldPath = UPLOADS_PATH + `chatAudio/` + path;
+
+    if (fs.existsSync(oldPath)) {
+
+        fs.unlink(oldPath, (err) => {
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    mensaje: 'Error al eliminar audio',
+                    errors: err
+                });
+            }
+        });
+
+    }
+}
 
    
 
