@@ -13,6 +13,7 @@ app.get('/', mdAutenticacion.verificarToken , (req, res)=>{
     desde = Number(desde);
 
     Cliente.find({})
+    .sort("-fechaUltimoMensaje")
     .skip(desde)
     .limit(10)
     .populate('usuarioUltimaModificacion', 'nombre email')
@@ -127,6 +128,7 @@ app.put('/:id', mdAutenticacion.verificarToken, (req, res)=>{
         cliente.email = body.email;
         cliente.img = body.img;
         cliente.usuarioUltimaModificacion = req.usuario._id;
+        (body.fechaUltimoMensaje && body.fechaUltimoMensaje != '') ? cliente.fechaUltimoMensaje = body.fechaUltimoMensaje : null;
 
         cliente.save((err, clienteActualizado) => {
           if (err) {
