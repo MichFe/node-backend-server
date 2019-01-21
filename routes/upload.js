@@ -81,8 +81,14 @@ app.put('/imagen/:tipo/:id', (req, res, next) => {
             });
         }
 
+        var width=200;
+
+        if(tipo=='chat'){
+            width=500;
+        }
+
         //Resize de imagen con jimp para que sea mas pequeña
-        resizeImage( path, 200 );
+        resizeImage( path, width );
 
         asignarImagen( tipo, id, nombreArchivo, res);
 
@@ -97,6 +103,7 @@ app.put('/imagen/:tipo/:id', (req, res, next) => {
         jimp.read(path)
             .then(
                 (image) => {
+                     
                     image
                         .resize( width, jimp.AUTO)
                         .write(path);
