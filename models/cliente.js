@@ -20,7 +20,8 @@ var clienteSchema = new Schema({
     img: { type:String, required:false },
     estatus: { type: String, required: true, default: 'Activo', enum: estatusValidos },
     usuarioUltimaModificacion: { type: Schema.Types.ObjectId, ref:'Usuario', required:true },
-    usuarioCreador: { type: Schema.Types.ObjectId, ref:'Usuario', required: true }
+    usuarioCreador: { type: Schema.Types.ObjectId, ref:'Usuario', required: true },
+    fechaUltimoMensaje: { type: Date, required: false }
 });
 
 module.exports = mongoose.model( 'Cliente', clienteSchema );
