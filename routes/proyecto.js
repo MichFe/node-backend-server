@@ -1,9 +1,12 @@
 var express=require('express');
 var mdAutenticacion=require('../middlewares/autenticacion');
+var UPLOADS_PATH = require("../config/config").UPLOADS_PATH;
+var fs = require("fs");
 
 var app=express();
 
 var Proyecto=require('../models/proyecto');
+var Chat=require('../models/chat');
 
 //========================================================
 // Obtener todos los proyectos de un cliente
@@ -181,15 +184,91 @@ app.delete('/:id', mdAutenticacion.verificarToken, (req,res)=>{
             });
         }
 
-        res.status(200).json({
-            ok: true,
-            mensaje: 'Proyecto eliminado exitosamente',
-            proyecto: proyectoEliminado
-        });
+        Chat.find({ proyectoId: id })
+            .exec((err, chats) => {
+
+                if (err) {
+                    return res.status(500).json({
+                        ok: false,
+                        mensaje: 'Error al borrar mensajes del proyecto',
+                        errors: err
+                    });
+                }
+
+                chats.forEach(chat => {
+
+                    if (chat.img) {
+                        eliminarImagen(chat.img);
+                    }
+
+                    if (chat.audio) {
+                        eliminarAudio(chat.audio);
+                    }
+
+                });
+
+                Chat.deleteMany({ proyectoId: id })
+                    .exec((err, result) => {
+
+                        if (err) {
+                            return res.status(500).json({
+                                ok: false,
+                                mensaje: 'Error al eliminar chats',
+                                errors: err
+                            });
+                        }
+
+                        res.status(200).json({
+                            ok: true,
+                            mensaje: 'Proyecto y mensajes eliminados exitosamente',
+                            mensajesEliminados: result
+                        });
+
+
+                    });
+
+            });
+
     });
 });
 //========================================================
 // FIN de Eliminar un proyecto
 //========================================================
+
+function eliminarImagen(path){
+    var oldPath = UPLOADS_PATH + `chat/` + path;
+
+    if (fs.existsSync(oldPath)) {
+      fs.unlink(oldPath, err => {
+        if (err) {
+          return res
+            .status(500)
+            .json({
+              ok: false,
+              mensaje: "Error al eliminar imagen",
+              errors: err
+            });
+        }
+      });
+    }
+}
+
+function eliminarAudio(path){
+    var oldPath = UPLOADS_PATH + `chatAudio/` + path;
+
+    if (fs.existsSync(oldPath)) {
+
+        fs.unlink(oldPath, (err) => {
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    mensaje: 'Error al eliminar audio',
+                    errors: err
+                });
+            }
+        });
+
+    }
+}
 
 module.exports = app;
