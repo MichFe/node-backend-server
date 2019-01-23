@@ -1,5 +1,6 @@
 var express = require('express');
 var UPLOADS_PATH = require("../config/config").UPLOADS_PATH;
+var mongoose = require("mongoose");
 
 var mdAutenticacion = require('../middlewares/autenticacion');
 var fs = require("fs");
@@ -7,6 +8,7 @@ var fs = require("fs");
 var app = express();
 
 var Chat = require('../models/chat');
+var Proyecto = require('../models/proyecto');
 
 app.get('/:idProyecto', mdAutenticacion.verificarToken, (req, res) => {
     var proyectoId=req.params.idProyecto;
@@ -94,6 +96,109 @@ app.post('/', mdAutenticacion.verificarToken, (req,res)=>{
     });
 
 
+});
+
+app.get('/conteoChats/cliente', mdAutenticacion.verificarToken,( req, res)=>{
+    
+    
+
+    Chat
+      .aggregate([
+        { $lookup:{
+            from: 'proyectos',
+            localField: 'proyectoId',
+            foreignField: '_id',
+            as:'cliente'
+        } },
+        { $group: {
+            _id: { $arrayElemAt: ['$cliente.clienteId', 0] },
+            conteoMensajes: { $sum: 1 }
+        }}
+    ])
+    .exec( (err, conteoMensajes)=>{
+
+        // res.status(200).json({
+        //     ok: true,
+        //     mensaje: 'respuesta Rapida',
+        //     conteoMensajes:conteoMensajes
+        // });
+
+        if (err) {
+            return res.status(500).json({
+                ok: false,
+                mensaje: 'Error al contar el total de mensajes',
+                errors: err
+            });
+        }
+
+        if (!conteoMensajes) {
+            return res.status(400).json({
+                ok: false,
+                mensaje: 'No hay mensajes',
+                errors: { message: 'No hay mensajes para ejecutar el conteo' }
+            });
+        }
+
+        res.status(200).json({
+            ok: true,
+            mensaje: 'Conteo de mensajes exitoso',
+            conteoDeMensajes: conteoMensajes
+        });
+
+        
+
+        
+    });
+
+});
+
+app.get("/conteoChats/proyectos/:id", mdAutenticacion.verificarToken, ( req, res )=>{
+    var clienteId = req.params.id;
+
+    Chat
+      .aggregate([
+          { $lookup:{
+            from: 'proyectos',
+            localField: 'proyectoId',
+            foreignField: '_id',
+            as:'proyecto'
+        } },
+        { $project:{
+            _id: { $arrayElemAt: ['$proyecto.clienteId',0]},
+            proyectoId: '$proyectoId'
+        } },
+          { $match: { _id: mongoose.Types.ObjectId(clienteId) }},
+        { $group: {
+            _id: '$proyectoId',
+            conteoMensajes: { $sum: 1 }
+        } }
+        
+      ])
+      .exec( (err, consulta)=>{
+
+        if(err){
+            return res.status(500).json({
+                ok: false,
+                mensaje: 'Error al realizar consulta',
+                errors: err
+            });
+        }
+
+        if(!consulta){
+            return res.status(400).json({
+                ok: false,
+                mensaje: 'No hay resultados para la consulta realizada',
+                errors: { message: 'No hay resulados para la consulta realizada' }
+            });
+        }
+
+        res.status(200).json({
+            ok: true,
+            mensaje: 'Conteo de chats por proyecto realizada exitosamente',
+            conteoMensajes: consulta
+        });
+
+      });
 });
 
 app.delete('/:id', mdAutenticacion.verificarToken, ( req, res )=>{
