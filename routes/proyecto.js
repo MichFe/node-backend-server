@@ -7,6 +7,7 @@ var app=express();
 
 var Proyecto=require('../models/proyecto');
 var Chat=require('../models/chat');
+var Cotizacion=require('../models/cotizacion');
 
 //========================================================
 // Obtener todos los proyectos de un cliente
@@ -218,9 +219,24 @@ app.delete('/:id', mdAutenticacion.verificarToken, (req,res)=>{
                             });
                         }
 
+                        Cotizacion.deleteMany({ proyecto: id })
+                            .exec((err, cotizacionEliminada) => {
+
+                                if (err) {
+                                    return res.status(500).json({
+                                        ok: false,
+                                        mensaje: 'Error al eliminar la cotizacion del proyecto',
+                                        errors: err
+                                    });
+                                }
+
+
+                            });
+
+
                         res.status(200).json({
                             ok: true,
-                            mensaje: 'Proyecto y mensajes eliminados exitosamente',
+                            mensaje: 'Proyecto, cotizacion y mensajes eliminados exitosamente',
                             mensajesEliminados: result
                         });
 
@@ -229,6 +245,7 @@ app.delete('/:id', mdAutenticacion.verificarToken, (req,res)=>{
 
             });
 
+            
     });
 });
 //========================================================
