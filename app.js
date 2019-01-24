@@ -38,6 +38,7 @@ var requisicionRoutes = require('./routes/requisicion');
 var uploadAudioRoutes = require('./routes/uploadAudio');
 var audioRoutes = require('./routes/audio');
 var registroLectura = require('./routes/registroLectura');
+var cotizacion = require('./routes/cotizacion');
 
 //Conexion a base de datos
 mongoose.set("useCreateIndex", true);
@@ -67,6 +68,7 @@ app.use('/requisicion', requisicionRoutes);
 app.use('/uploadAudio', uploadAudioRoutes );
 app.use('/audio', audioRoutes);
 app.use('/registroLectura', registroLectura);
+app.use('/cotizacion', cotizacion);
 app.use('/', appRoutes);
 
 
