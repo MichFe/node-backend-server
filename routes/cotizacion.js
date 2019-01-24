@@ -57,7 +57,7 @@ app.get('/', mdAutenticacion.verificarToken, (req,res)=>{
 app.get('/cotizacionProyecto/:id', mdAutenticacion.verificarToken, (req, res)=>{
     var idProyecto = req.params.id;
 
-    Cotizacion.find({ proyecto: id })
+    Cotizacion.find({ proyecto: idProyecto })
       .populate("proyecto", "_id nombre")
       .populate("cliente", "_id nombre")
       .exec((err,cotizacionesProyecto)=>{
@@ -81,7 +81,7 @@ app.get('/cotizacionProyecto/:id', mdAutenticacion.verificarToken, (req, res)=>{
           res.status(200).json({
               ok: true,
               mensaje: 'Consulta de cotizaciones realizada correctamente',
-              productos: cotizacionesProyecto,
+              cotizacion: cotizacionesProyecto,
           });
 
       });
@@ -102,7 +102,7 @@ app.post('/', mdAutenticacion.verificarToken, (req, res)=>{
         proyecto: body.proyecto,
         cliente: body.cliente,
         fecha: body.fecha,
-        carrito: body.carrito,
+        productos: body.productos,
         subtotal: body.subtotal,
         descuento: body.descuento,
         total: body.total
@@ -121,7 +121,7 @@ app.post('/', mdAutenticacion.verificarToken, (req, res)=>{
         res.status(201).json({
             ok: true,
             mensaje: 'Cotización creada correctamente',
-            usuario: cotizacionCreada
+            cotizacion: cotizacionCreada
         });
     });
 });
@@ -147,7 +147,7 @@ app.put('/:id', mdAutenticacion.verificarToken, (req,res)=>{
                 });
             }
 
-            if (!producto) {
+            if (!cotizacion) {
                 res.status(400).json({
                     ok: false,
                     mensaje: 'No existe la cotizacion id: ' + id,
@@ -157,7 +157,7 @@ app.put('/:id', mdAutenticacion.verificarToken, (req,res)=>{
 
             //Valores a actualizar
             ( body.fecha && body.fecha != '' ) ? cotizacion.fecha = body.fecha : null;
-            ( body.carrito && body.carrito.length > 0 ) ? cotizacion.carrito = body.carrito : null;
+            ( body.productos && body.productos.length > 0 ) ? cotizacion.productos = body.productos : null;
             ( body.subtotal && body.subtotal != '' ) ? cotizacion.subtotal = body.subtotal : null;
             ( body.descuento && body.descuento != '' ) ? cotizacion.descuento = body.descuento : null;
             ( body.total && body.total != '' ) ? cotizacion.total = body.total : null;
