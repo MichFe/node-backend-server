@@ -20,15 +20,15 @@ var unidadesDeNegocio = {
 };
 
 var ventaSchema = new Schema({
-    subtotal: { type: Number, required:true },
+    cliente: { type: Schema.Types.ObjectId, ref: 'Cliente', required: true },
+    proyecto: { type: Schema.Types.ObjectId, ref: 'Proyecto', required: false },
+    tipoDePago: { type: String, required: true },
     iva: { type: Number, required: true },
+    carrito: [{}],
+    subtotal: { type: Number, required:true },
     total: { type: Number, required: true },
     vendedor: { type: Schema.Types.ObjectId, ref: 'Usuario', required: true },
     fecha: { type: Date, required: true },
-    carrito: [{}],
-    tipoDePago: { type: String, required: true },
-    cliente: { type: Schema.Types.ObjectId, ref: 'Cliente', required: true },
-    proyecto: { type: Schema.Types.ObjectId, ref: 'Proyecto', required: false },
     montoPagado: { type: Number, required: true },
     saldoPendiente: { type: Number, required: true },
     estatus: { type: String, required: true, enum: estatusVenta },
