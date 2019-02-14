@@ -342,61 +342,61 @@ app.post('/', mdAutenticacion.verificarToken, (req, res) => {
 //==================================
 // Actualizar un venta
 //==================================
-// app.put('/:id', mdAutenticacion.verificarToken, (req, res) => {
-//     var id = req.params.id;
-//     var body = req.body;
+app.put('/:id', mdAutenticacion.verificarToken, (req, res) => {
+    var id = req.params.id;
+    var body = req.body;    
 
-//     Venta.findById(id)
-//         .exec((err, venta) => {
-//             if (err) {
-//                 return res
-//                     .status(500)
-//                     .json({
-//                         ok: false,
-//                         mensaje: "Error al buscar venta",
-//                         errors: err
-//                     });
-//             }
+    Venta.findById(id)
+        .exec((err, venta) => {
+            if (err) {
+                return res
+                    .status(500)
+                    .json({
+                        ok: false,
+                        mensaje: "Error al buscar venta",
+                        errors: err
+                    });
+            }
 
-//             if (!venta) {
-//                 return res
-//                     .status(400)
-//                     .json({
-//                         ok: false,
-//                         mensaje: "La venta con el id: " + id + ", no existe",
-//                         errors: { message: "No existe un venta con ese ID" }
-//                     });
-//             }
+            if (!venta) {
+                return res
+                    .status(400)
+                    .json({
+                        ok: false,
+                        mensaje: "La venta con el id: " + id + ", no existe",
+                        errors: { message: "No existe un venta con ese ID" }
+                    });
+            }
 
-//             venta.estatus = body.estatus;
-//             venta.nombre = body.nombre;
-//             venta.telefono = body.telefono;
-//             venta.direccion = body.direccion;
-//             venta.email = body.email;
-//             venta.img = body.img;
-//             venta.usuarioUltimaModificacion = req.usuario._id;
+            venta.cliente = body.cliente;
+            venta.proyecto = body.proyecto;
+            venta.tipoDePago = body.tipoDePago;
+            venta.iva = body.iva;
+            venta.carrito = body.carrito;
+            venta.subtotal = body.subtotal;
+            venta.total = body.total;
 
-//             venta.save((err, clienteActualizado) => {
-//                 if (err) {
-//                     return res
-//                         .status(400)
-//                         .json({
-//                             ok: false,
-//                             mensaje: "Error al actualizar venta",
-//                             errors: err
-//                         });
-//                 }
+            venta.save((err, ventaActualizada) => {
+                if (err) {
+                    return res
+                        .status(400)
+                        .json({
+                            ok: false,
+                            mensaje: "Error al actualizar venta",
+                            errors: err
+                        });
+                }
 
-//                 res
-//                     .status(200)
-//                     .json({
-//                         ok: true,
-//                         mensaje: "Venta actualizado exitosamente",
-//                         venta: clienteActualizado
-//                     });
-//             });
-//         });
-// });
+                res
+                    .status(200)
+                    .json({
+                        ok: true,
+                        mensaje: "Venta actualizado exitosamente",
+                        venta: ventaActualizada
+                    });
+            });
+        });
+});
 //==================================
 // FIN de Actualizar un venta
 //==================================
