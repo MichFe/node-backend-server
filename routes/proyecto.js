@@ -236,7 +236,7 @@ app.delete('/:id', mdAutenticacion.verificarToken, (req,res)=>{
 
                         res.status(200).json({
                             ok: true,
-                            mensaje: 'Proyecto, cotizacion y mensajes eliminados exitosamente',
+                            mensaje: 'Proyecto, cotizaciones y mensajes eliminados exitosamente',
                             mensajesEliminados: result
                         });
 
