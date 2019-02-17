@@ -128,7 +128,7 @@ app.put('/:id', mdAutenticacion.verificarToken, (req, res)=>{
         cliente.email = body.email;
         cliente.img = body.img;
         cliente.usuarioUltimaModificacion = req.usuario._id;
-        (body.fechaUltimoMensaje && body.fechaUltimoMensaje != '') ? cliente.fechaUltimoMensaje = body.fechaUltimoMensaje : null;
+        (body.fechaUltimoMensaje!=null && body.fechaUltimoMensaje != '') ? cliente.fechaUltimoMensaje = body.fechaUltimoMensaje : null;
         
         // if(!cliente.fechaUltimoMensaje){
         //     console.log('No hay fecha ultimo mensaje');
