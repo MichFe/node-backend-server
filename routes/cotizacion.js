@@ -156,11 +156,11 @@ app.put('/:id', mdAutenticacion.verificarToken, (req,res)=>{
             }
 
             //Valores a actualizar
-            ( body.fecha && body.fecha != '' ) ? cotizacion.fecha = body.fecha : null;
-            ( body.productos && body.productos.length > 0 ) ? cotizacion.productos = body.productos : null;
-            ( body.subtotal && body.subtotal != '' ) ? cotizacion.subtotal = body.subtotal : null;
-            ( body.descuento && body.descuento != '' ) ? cotizacion.descuento = body.descuento : null;
-            ( body.total && body.total != '' ) ? cotizacion.total = body.total : null;
+            ( body.fecha != null ) ? cotizacion.fecha = body.fecha : null;
+            ( body.productos != null ) ? cotizacion.productos = body.productos : null;
+            ( body.subtotal != null ) ? cotizacion.subtotal = body.subtotal : null;
+            ( body.descuento != null ) ? cotizacion.descuento = body.descuento : null;
+            ( body.total != null ) ? cotizacion.total = body.total : null;
 
             cotizacion.save( (err, cotizacionactualizada)=>{
 
@@ -210,7 +210,7 @@ app.delete('/:id', mdAutenticacion.verificarToken, (req, res)=>{
         res.status(200).json({
             ok: true,
             mensaje: "Cotización eliminada correctamente",
-            usuario: cotizacionEliminada
+            cotizacion: cotizacionEliminada
         });
     });
 });
