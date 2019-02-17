@@ -88,8 +88,8 @@ app.put('/:id', mdAutenticacion.verificarToken, (req, res)=>{
                 });
             }
 
-            (body.registroLecturaClientes && body.registroLecturaClientes != '') ? registroLectura.registroLecturaClientes = body.registroLecturaClientes : null;
-            (body.registroLecturaProyectos && body.registroLecturaProyectos != '') ? registroLectura.registroLecturaProyectos = body.registroLecturaProyectos : null;
+            (body.registroLecturaClientes!=null && body.registroLecturaClientes != '') ? registroLectura.registroLecturaClientes = body.registroLecturaClientes : null;
+            (body.registroLecturaProyectos!=null && body.registroLecturaProyectos != '') ? registroLectura.registroLecturaProyectos = body.registroLecturaProyectos : null;
 
             registroLectura.save( (err, registroLecturaActualizado)=>{
 
