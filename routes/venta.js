@@ -4,16 +4,40 @@ var mdAutenticacion = require('../middlewares/autenticacion');
 var app = express();
 
 var Venta = require('../models/venta');
-var Cliente= require('../models/cliente');
+var Cliente = require('../models/cliente');
+var Cobro = require('../models/cobro');
 
 //======================================================
 // Obtener ventas paginadas de 10 en 10
 //======================================================
-app.get('/', mdAutenticacion.verificarToken, (req, res) => {
+app.get('/tablaVentas', mdAutenticacion.verificarToken, (req, res) => {
     var desde = req.query.desde || 0;
     desde = Number(desde);
+    var unidadDeNegocio = req.query.unidadDeNegocio;
+    var year = Number(req.query.year);
+    var fechaInicial = new Date(year, 0, 1, 0, 0, 0, 0);
+    var fechaFinal = new Date(year, 11, 31, 0, 0, 0, 0);
+    var query={};
 
-    Venta.find({})
+    if(unidadDeNegocio.length>1){
+        query={
+            unidadDeNegocio: unidadDeNegocio,
+            'fecha': {
+                $gte: fechaInicial,
+                $lte: fechaFinal
+            },
+        };
+    }else{
+        query={
+            'fecha': {
+                $gte: fechaInicial,
+                $lte: fechaFinal
+            },
+        }
+    }
+     
+
+    Venta.find(query)
       .skip(desde)
       .limit(10)
       .populate("vendedor", "nombre email")
@@ -31,7 +55,7 @@ app.get('/', mdAutenticacion.verificarToken, (req, res) => {
             });
         }
 
-        Venta.count({}, (err, conteoVentas) => {
+        Venta.count(query, (err, conteoVentas) => {
           if (err) {
             return res
               .status(500)
@@ -60,41 +84,88 @@ app.get('/', mdAutenticacion.verificarToken, (req, res) => {
 //====================================================================
 // Obtener total de ventas pagadas y total de saldo pendiente
 //====================================================================
-app.get('/saldoPendiente', mdAutenticacion.verificarToken,( req, res )=>{
-    // var year=Number(req.params.year);
-    // var fechaInicial = new Date(year, 0, 1);
-    // var fechaFinal = new Date(year, 11, 21);
+app.get('/saldoPendiente/:year', mdAutenticacion.verificarToken,( req, res )=>{
+    var year=Number(req.params.year);
+    var fechaInicial = new Date(year, 0, 1, 0, 0, 0, 0);
+    var fechaFinal = new Date(year, 11, 31, 0, 0, 0, 0);
     var totalSaldoPendiente;
     var totalMontoPagado;
+    var unidadDeNegocio = req.query.unidadDeNegocio;
 
-    Venta.aggregate([
-        // { $match: { 
-            // fecha: { $gte: fechaInicial, $lte: fechaFinal}
-        //  }},
-        { $group: {
-             _id: null,
-             totalMontoPagado: { $sum: '$montoPagado' },
-             totalSaldoPendiente: { $sum: '$saldoPendiente' }
-         } 
-        }], (err, totales)=>{
-        if(err){
-            return res.status(500).json({
-                ok: false,
-                mensaje: 'Error al sumar saldoPendiente y montoPagado',
-                errors: err
+    if(unidadDeNegocio.length>1){
+
+        Venta.aggregate([
+            { $match: { 
+            fecha: { $gte: fechaInicial, $lte: fechaFinal}
+             }},
+            {
+                $match: {
+                   unidadDeNegocio: { $eq: unidadDeNegocio}
+                }},
+                {$group: {
+                    _id: null,
+                    totalMontoPagado: { $sum: '$montoPagado' },
+                    totalSaldoPendiente: { $sum: '$saldoPendiente' }
+                }
+            }], (err, totales) => {
+                if (err) {
+                    return res.status(500).json({
+                        ok: false,
+                        mensaje: 'Error al sumar saldoPendiente y montoPagado',
+                        errors: err
+                    });
+                }
+
+                if(!totales[0]){
+                    totalSaldoPendiente=0;
+                    totalMontoPagado=0;
+                }else{
+                    totalSaldoPendiente = totales[0].totalSaldoPendiente;
+                    totalMontoPagado = totales[0].totalMontoPagado;
+                }
+
+
+                res.status(200).json({
+                    ok: true,
+                    mensaje: 'Consulta de totales realizada exitosamente',
+                    totalSaldoPendiente: totalSaldoPendiente,
+                    totalMontoPagado: totalMontoPagado
+                });
             });
-        }
-        
-        totalSaldoPendiente = totales[0].totalSaldoPendiente;
-        totalMontoPagado = totales[0].totalMontoPagado;
 
-        res.status(200).json({
-            ok: true,
-            mensaje: 'Consulta de totales realizada exitosamente',
-            totalSaldoPendiente: totalSaldoPendiente,
-            totalMontoPagado: totalMontoPagado
-        });
-    });
+    }else{
+        Venta.aggregate([
+            { $match: { 
+            fecha: { $gte: fechaInicial, $lte: fechaFinal}
+             }},
+            {
+                $group: {
+                    _id: null,
+                    totalMontoPagado: { $sum: '$montoPagado' },
+                    totalSaldoPendiente: { $sum: '$saldoPendiente' }
+                }
+            }], (err, totales) => {
+                if (err) {
+                    return res.status(500).json({
+                        ok: false,
+                        mensaje: 'Error al sumar saldoPendiente y montoPagado',
+                        errors: err
+                    });
+                }
+
+                totalSaldoPendiente = totales[0].totalSaldoPendiente;
+                totalMontoPagado = totales[0].totalMontoPagado;
+
+                res.status(200).json({
+                    ok: true,
+                    mensaje: 'Consulta de totales realizada exitosamente',
+                    totalSaldoPendiente: totalSaldoPendiente,
+                    totalMontoPagado: totalMontoPagado
+                });
+            });
+    }
+
+    
 
 });
 //====================================================================
@@ -107,14 +178,32 @@ app.get('/saldoPendiente', mdAutenticacion.verificarToken,( req, res )=>{
 app.get('/ventasMensuales/:year', mdAutenticacion.verificarToken, (req, res)=>{
     var year=Number(req.params.year);
     var fechaInicial = new Date(year, 0, 1, 0, 0, 0, 0);
-    var fechaFinal = new Date( year, 11, 31, 0, 0 ,0 , 0 );    
+    var fechaFinal = new Date( year, 11, 31, 0, 0 ,0 , 0 );
+    
+    var unidadDeNegocio = req.query.unidadDeNegocio;
+    var query = {};
 
-    Venta.find({ 
-        'fecha': { 
-            $gte: fechaInicial,
-            $lte: fechaFinal
+    if (unidadDeNegocio.length > 1) {
+
+        query = {
+            'fecha': {
+                $gte: fechaInicial,
+                $lte: fechaFinal
+            },
+            'unidadDeNegocio': unidadDeNegocio
+        };
+
+    }else{
+
+        query={
+            'fecha': {
+                $gte: fechaInicial,
+                $lte: fechaFinal
+            }
         }
-    })
+    }
+
+    Venta.find(query)
     .sort('fecha')
     .exec( (err,ventasYear)=>{
 
@@ -160,13 +249,28 @@ app.get('/ventasDiarias/:year/:mes', mdAutenticacion.verificarToken, (req ,res)=
     var year=Number(req.params.year);
     var fechaInicial = new Date(year, mes, 1);
     var fechaFinal = new Date(year, mes + 1, 0 );
+
+    var unidadDeNegocio=req.query.unidadDeNegocio;
+    var query={};
+
+    if(unidadDeNegocio.length>1){
+        query={
+            'fecha': {
+                $gte: fechaInicial,
+                $lte: fechaFinal
+            },
+            unidadDeNegocio: unidadDeNegocio
+        };
+    }else{
+        query={
+            'fecha': {
+                $gte: fechaInicial,
+                $lte: fechaFinal
+            }
+        };
+    }
     
-    Venta.find({
-        'fecha':{
-            $gte:fechaInicial,
-            $lte: fechaFinal
-        }
-    })
+    Venta.find(query)
     .sort('fecha')
     .exec( (err, ventasMes)=>{
 
@@ -344,7 +448,9 @@ app.post('/', mdAutenticacion.verificarToken, (req, res) => {
 //==================================
 app.put('/:id', mdAutenticacion.verificarToken, (req, res) => {
     var id = req.params.id;
-    var body = req.body;    
+    var body = req.body;
+    var devolucion = req.query.devolucion;
+    var devolucion=Number(devolucion);     
 
     Venta.findById(id)
         .exec((err, venta) => {
@@ -375,8 +481,13 @@ app.put('/:id', mdAutenticacion.verificarToken, (req, res) => {
             venta.carrito = body.carrito;
             venta.subtotal = body.subtotal;
             venta.total = body.total;
+            (body.saldoPendiente!=null)?venta.saldoPendiente=body.saldoPendiente:null;
+            (body.montoPagado != null) ? venta.montoPagado = body.montoPagado : null;
+            (body.estatus != null) ? venta.estatus = body.estatus : null;
+
 
             venta.save((err, ventaActualizada) => {
+
                 if (err) {
                     return res
                         .status(400)
@@ -387,16 +498,46 @@ app.put('/:id', mdAutenticacion.verificarToken, (req, res) => {
                         });
                 }
 
-                res
-                    .status(200)
-                    .json({
-                        ok: true,
-                        mensaje: "Venta actualizado exitosamente",
-                        venta: ventaActualizada
+                //Posteamos un cobro negativo para dejar constancia de la cantidad devuelta al cliente
+                if(devolucion>0){
+                    var pago = new Cobro({
+                        venta: ventaActualizada._id,
+                        cliente: ventaActualizada.cliente,
+                        monto: -devolucion,
+                        tipoDePago: ventaActualizada.tipoDePago,
+                        fecha: new Date()
                     });
+
+                    pago.save((err, cobroGuardado) => {
+
+                        if (err) {
+                            return res.status(500).json({
+                                ok: false,
+                                mensaje: 'Error al guardar pago',
+                                errors: err
+                            });
+                        }
+
+                        res.status(200)
+                            .json({
+                                ok: true,
+                                mensaje: "Venta actualizado exitosamente",
+                                venta: ventaActualizada
+                            });
+
+
+                    });          
+                }else{
+                    res.status(200)
+                        .json({
+                            ok: true,
+                            mensaje: "Venta actualizado exitosamente",
+                            venta: ventaActualizada
+                        });
+                }
             });
         });
-});
+    });    
 //==================================
 // FIN de Actualizar un venta
 //==================================
@@ -425,11 +566,27 @@ app.delete('/:id', mdAutenticacion.verificarToken, (req, res) => {
             });
         }
 
-        res.status(200).json({
-            ok: true,
-            mensaje: 'Venta eliminada exitosamente',
-            venta: ventaEliminada
-        });
+        //Eliminamos los pagos del cliente asociados a esa venta
+        Cobro.deleteMany({ venta: ventaEliminada._id })
+              .exec((err, cobrosEliminados)=>{
+
+                  if (err) {
+                      return res.status(500).json({
+                          ok: false,
+                          mensaje: 'Error al eliminar pagos de esta venta',
+                          errors: err
+                      });
+                  }
+
+                  res.status(200).json({
+                      ok: true,
+                      mensaje: 'Venta eliminada exitosamente',
+                      venta: ventaEliminada
+                  });
+
+              });
+
+        
     });
 });
 //==================================
