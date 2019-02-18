@@ -40,6 +40,7 @@ var audioRoutes = require('./routes/audio');
 var registroLectura = require('./routes/registroLectura');
 var cotizacionRoutes = require('./routes/cotizacion');
 var metaRoutes = require('./routes/meta');
+var cobroRoutes = require('./routes/cobro');
 
 //Conexion a base de datos
 mongoose.set("useCreateIndex", true);
@@ -71,6 +72,7 @@ app.use('/audio', audioRoutes);
 app.use('/registroLectura', registroLectura);
 app.use('/cotizacion', cotizacionRoutes);
 app.use('/meta', metaRoutes);
+app.use('/cobro', cobroRoutes);
 app.use('/', appRoutes);
 
 
