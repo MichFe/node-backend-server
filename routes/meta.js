@@ -7,8 +7,9 @@ var Meta = require('../models/meta');
 
 app.get('/:year', mdAutenticacion.verificarToken ,(req, res, next) => {
     var year=req.params.year;
+    var unidadDeNegocio = req.query.unidadDeNegocio;
 
-    Meta.find({'year': year}, (err, metasYear)=>{
+    Meta.find({'year': year, unidadDeNegocio: unidadDeNegocio}, (err, metasYear)=>{
 
         if(err){
             return res.status(500).json({
@@ -43,6 +44,7 @@ app.post('/', mdAutenticacion.verificarToken, (req,res)=>{
 
     var metas = new Meta({
         year: body.year,
+        unidadDeNegocio: body.unidadDeNegocio,
         metas: body.metas
     });
 
