@@ -91,8 +91,9 @@ app.post('/', mdAutenticacion.verificarToken, (req, res)=>{
                 //Propiedades a actualizar
                 venta.montoPagado += cobroGuardado.monto;
                 (venta.saldoPendiente<=cobroGuardado.monto)?venta.saldoPendiente=0:venta.saldoPendiente -= cobroGuardado.monto;
-                (venta.saldoPendiente <= cobroGuardado.monto) ? venta.estatus ='Liquidada':null;
+                (venta.saldoPendiente <= 0) ? venta.estatus ='Liquidada':venta.estatus='Saldo Pendiente';
 
+                
                 venta.save((err,ventaActualizada)=>{
                     if (err) {
                         return res.status(500).json({
