@@ -153,8 +153,13 @@ app.get('/saldoPendiente/:year', mdAutenticacion.verificarToken,( req, res )=>{
                     });
                 }
 
-                totalSaldoPendiente = totales[0].totalSaldoPendiente;
-                totalMontoPagado = totales[0].totalMontoPagado;
+                if(totales[0]){
+                    totalSaldoPendiente = totales[0].totalSaldoPendiente;
+                    totalMontoPagado = totales[0].totalMontoPagado;
+                }else{
+                    totalSaldoPendiente = 0;
+                    totalMontoPagado = 0;
+                }
 
                 res.status(200).json({
                     ok: true,
