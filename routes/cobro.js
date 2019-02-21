@@ -117,7 +117,7 @@ app.post('/', mdAutenticacion.verificarToken, (req, res)=>{
                         pago: cobroGuardado
                     });
 
-                })
+                });
 
             });
 
@@ -208,13 +208,61 @@ app.delete('/:cobroId', mdAutenticacion.verificarToken, (req,res)=>{
                 });
             }
 
-            res.status(200).json({
-                ok: true,
-                mensaje: 'Pago eliminado exitosamente',
-                pago: cobroEliminado
+            //Actualizamos pago en la venta
+            Venta.findById(cobroEliminado.venta)
+                .exec((err, venta) => {
+                    if (err) {
+                        return res.status(500).json({
+                            ok: false,
+                            mensaje: 'Error al buscar venta',
+                            errors: err
+                        });
+                    }
+
+                    if (!venta) {
+                        return res.status(400).json({
+                            ok: false,
+                            mensaje: 'No existe la venta a la cual se desea eliminar el pago',
+                            errors: { message: 'La venta no existe en la base de datos' }
+                        });
+                    }
+
+            //Actualizando Totales en venta
+            venta.montoPagado -= cobroEliminado.monto;
+            venta.saldoPendiente+=cobroEliminado.monto;
+            (venta.saldoPendiente <= 0) ? venta.estatus = 'Liquidada' : venta.estatus = 'Saldo Pendiente';
+
+
+            venta.save((err, ventaActualizada) => {
+                if (err) {
+                    return res.status(500).json({
+                        ok: false,
+                        mensaje: 'Error al actualizar venta',
+                        errors: err
+                    });
+                }
+
+                if (!ventaActualizada) {
+                    return res.status(400).json({
+                        ok: false,
+                        mensaje: 'No existe la venta a la cual se desea eliminar el pago',
+                        errors: { message: 'La venta no existe en la base de datos' }
+                    });
+                }
+
+                res.status(200).json({
+                    ok: true,
+                    mensaje: 'Pago eliminado exitosamente',
+                    pago: cobroEliminado
+                });
+
             });
 
         });
+
+            
+
+    });
 });
 //======================================================================
 // FIN de Eliminar pago por id
