@@ -8,6 +8,42 @@ var Cliente = require('../models/cliente');
 var Cobro = require('../models/cobro');
 
 //======================================================
+// Obtener una venta por Id
+//======================================================
+app.get('/ventaPorId/:ventaId', mdAutenticacion.verificarToken, (req,res)=>{
+    var id = req.params.ventaId;
+
+    Venta.findById(id)
+        .exec((err, venta)=>{
+
+            if(err){
+                return res.status(500).json({
+                    ok: false,
+                    mensajae: 'Error al buscar venta',
+                    errors: err
+                });
+            }
+
+            if(!venta){
+                return res.status(400).json({
+                    ok: false,
+                    mensaje: 'La venta específicada no existe en la base de datos',
+                    errors: {message: `La venta id: ${id}, no existe en la base de datos.`}
+                });
+            }
+
+            res.status(200).json({
+                ok: true,
+                mensaje: 'Consulta de venta exitosa',
+                venta: venta
+            })
+        });
+});
+//======================================================
+// FIN de Obtener una venta por Id
+//======================================================
+
+//======================================================
 // Obtener ventas paginadas de 10 en 10
 //======================================================
 app.get('/tablaVentas', mdAutenticacion.verificarToken, (req, res) => {
@@ -538,6 +574,7 @@ app.put('/:id', mdAutenticacion.verificarToken, (req, res) => {
             (body.saldoPendiente!=null)?venta.saldoPendiente=body.saldoPendiente:null;
             (body.montoPagado != null) ? venta.montoPagado = body.montoPagado : null;
             (body.estatus != null) ? venta.estatus = body.estatus : null;
+            (body.fecha !=null) ? venta.fecha = body.fecha:null;
 
 
             venta.save((err, ventaActualizada) => {
