@@ -81,8 +81,57 @@ app.get('/tablaVentas', mdAutenticacion.verificarToken, (req, res) => {
 // FIN Obtener ventas paginadas de 10 en 10
 //======================================================
 
+//========================================================================================
+// Obtener total de ventas pagadas y total de saldo pendiente de todos los tiempos
+//========================================================================================
+app.get('/saldoPendiente/todosLosTiempos', mdAutenticacion.verificarToken, (req,res)=>{
+    var totalSaldoPendiente;
+    var totalMontoPagado;
+
+    Venta.aggregate([
+        // {
+        //     $match: {
+        //         fecha: { $gte: fechaInicial, $lte: fechaFinal }
+        //     }
+        // },
+        {
+            $group: {
+                _id: null,
+                totalMontoPagado: { $sum: '$montoPagado' },
+                totalSaldoPendiente: { $sum: '$saldoPendiente' }
+            }
+        }], (err, totales) => {
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    mensaje: 'Error al sumar saldoPendiente y montoPagado',
+                    errors: err
+                });
+            }
+
+            if (totales[0]) {
+                totalSaldoPendiente = totales[0].totalSaldoPendiente;
+                totalMontoPagado = totales[0].totalMontoPagado;
+            } else {
+                totalSaldoPendiente = 0;
+                totalMontoPagado = 0;
+            }
+
+            res.status(200).json({
+                ok: true,
+                mensaje: 'Consulta de totales realizada exitosamente',
+                totalSaldoPendiente: totalSaldoPendiente,
+                totalMontoPagado: totalMontoPagado
+            });
+        });
+
+});
+//========================================================================================
+// FIN de Obtener total de ventas pagadas y total de saldo pendiente de todos los tiempos
+//========================================================================================
+
 //====================================================================
-// Obtener total de ventas pagadas y total de saldo pendiente
+// Obtener total de ventas pagadas y total de saldo pendiente por año
 //====================================================================
 app.get('/saldoPendiente/:year', mdAutenticacion.verificarToken,( req, res )=>{
     var year=Number(req.params.year);
@@ -173,9 +222,9 @@ app.get('/saldoPendiente/:year', mdAutenticacion.verificarToken,( req, res )=>{
     
 
 });
-//====================================================================
-// FIN deObtener total de ventas pagadas y total de saldo pendiente
-//====================================================================
+//===========================================================================
+// FIN deObtener total de ventas pagadas y total de saldo pendiente por año
+//===========================================================================
 
 //======================================================
 // Obtener total de ventas mensuales en un año
