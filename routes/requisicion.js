@@ -12,12 +12,20 @@ var Requisicion = require("../models/requisicion");
 app.get('/', mdAutenticacion.verificarToken,(req, res) => {
     var desde = req.query.desde || 0;
     desde = Number(desde);
+    var solicitanteId=req.query.id;
+    var query={
+        solicitante: solicitanteId
+    };
+    
+    if(solicitanteId==null){
+        query={};
+    }
 
-    Requisicion.find({})
+    Requisicion.find(query)
       .skip(desde)
       .limit(10)
       .populate("solicitante", "nombre email")
-      .sort("fechaSolicitud")
+      .sort("-fechaSolicitud")
       .exec( (err,requisiciones)=>{
 
           if(err){
