@@ -44,6 +44,75 @@ app.get('/ventaPorId/:ventaId', mdAutenticacion.verificarToken, (req,res)=>{
 //======================================================
 
 //======================================================
+// Obtener Total de descuentos mensuales
+//======================================================
+app.get('/descuentosAnuales/:year', mdAutenticacion.verificarToken, (req,res)=>{
+    var year = Number(req.params.year);
+    var fechaInicial = new Date(year, 0, 1, 0, 0, 0, 0);
+    var fechaFinal = new Date(year, 11, 31, 0, 0, 0, 0);
+
+    var unidadDeNegocio = req.query.unidadDeNegocio;
+    var query = {};
+
+    if (unidadDeNegocio.length > 1) {
+
+        query = {
+            'fecha': {
+                $gte: fechaInicial,
+                $lte: fechaFinal
+            },
+            'unidadDeNegocio': unidadDeNegocio
+        };
+
+    } else {
+
+        query = {
+            'fecha': {
+                $gte: fechaInicial,
+                $lte: fechaFinal
+            }
+        }
+    }
+
+    Venta.find(query)
+        .sort('fecha')
+        .exec((err, ventasYear) => {
+
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    mensaje: 'Error al buscar ventas del año: ' + year,
+                    errors: err
+                });
+            }
+
+            if (!ventasYear) {
+                return res.status(400).json({
+                    ok: false,
+                    mensaje: 'No hay ventas registradas en el año: ' + year,
+                    errors: { message: 'No hay ventas registradas en el año de busqueda seleccionado' }
+                });
+            }
+
+            var descuentosMensuales = calcularDescuentosMensuales(ventasYear);
+
+            res.status(200).json({
+                ok: true,
+                mensaje: 'Consulta de descuentos realizada exitosamente',
+                descuentosMensuales: descuentosMensuales,
+            });
+
+
+
+
+        });
+
+});
+//======================================================
+// FIN de Obtener Total de descuentos mensuales
+//======================================================
+
+//======================================================
 // Obtener ventas paginadas de 10 en 10
 //======================================================
 app.get('/tablaVentas', mdAutenticacion.verificarToken, (req, res) => {
@@ -51,8 +120,9 @@ app.get('/tablaVentas', mdAutenticacion.verificarToken, (req, res) => {
     desde = Number(desde);
     var unidadDeNegocio = req.query.unidadDeNegocio;
     var year = Number(req.query.year);
-    var fechaInicial = new Date(year, 0, 1, 0, 0, 0, 0);
-    var fechaFinal = new Date(year, 11, 31, 0, 0, 0, 0);
+    var mes = Number(req.query.mes);
+    var fechaInicial = new Date(year, mes, 1, 0, 0, 0, 0);
+    var fechaFinal = new Date(year, mes, 31, 0, 0, 0, 0);
     var query={};
 
     if(unidadDeNegocio.length>1){
@@ -324,7 +394,7 @@ app.get('/ventasMensuales/:year', mdAutenticacion.verificarToken, (req, res)=>{
 
 
         
-    })
+    });
 
 });
 //======================================================
@@ -701,6 +771,28 @@ function calcularVentasMensuales(ventas){
     });
 
     return ventasMensuales;
+}
+
+function calcularDescuentosMensuales(ventas){
+    var descuentosMensuales = [
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    ];
+
+    ventas.forEach(venta => {
+        var mes = venta.fecha.getMonth();
+        var totalDescuento = 0;
+        venta.carrito.forEach((producto)=>{
+            if(producto.descuento){
+                totalDescuento+=producto.descuento;
+            }
+        });
+
+        descuentosMensuales[mes] += totalDescuento;
+
+    });
+
+    return descuentosMensuales;
+
 }
 
 function calcularVentasDiarias(ventas,numDias){
