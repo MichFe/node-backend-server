@@ -1,6 +1,9 @@
 var express = require('express');
 var mdAutenticacion = require('../middlewares/autenticacion');
 
+var UPLOADS_PATH = require("../config/config").UPLOADS_PATH;
+var fs = require('fs');
+
 var app = express();
 
 var Cotizacion = require('../models/cotizacion');
@@ -206,6 +209,30 @@ app.delete('/:id', mdAutenticacion.verificarToken, (req, res)=>{
                 errors: { message: "No existe una cotización con el id especificado" }
             });
         }
+
+        //Eliminamos todas las imagenes custom, asociadas a esa cotizacion
+        var productos=cotizacionEliminada.productos;
+
+        productos.forEach(producto => {
+            if(producto.img.includes('cotizacion')){
+                var oldPath = UPLOADS_PATH + `cotizacion/` + producto.img;
+
+                //Validamos si existe una imagen anterior y la eliminamos
+                if (fs.existsSync(oldPath)) {
+                    fs.unlink(oldPath, (err) => {
+
+                        if (err) {
+                            return res.status(500).json({
+                                ok: false,
+                                mensaje: 'Error al eliminar imagen anterior',
+                                errors: err
+                            });
+                        }
+                    });
+                }
+            }
+        });
+
 
         res.status(200).json({
             ok: true,

@@ -42,6 +42,7 @@ var cotizacionRoutes = require('./routes/cotizacion');
 var metaRoutes = require('./routes/meta');
 var cobroRoutes = require('./routes/cobro');
 var proveedorRoutes = require('./routes/proveedor');
+var deleteImages = require('./routes/deleteImages');
 
 //Conexion a base de datos
 mongoose.set("useCreateIndex", true);
@@ -75,6 +76,7 @@ app.use('/cotizacion', cotizacionRoutes);
 app.use('/meta', metaRoutes);
 app.use('/cobro', cobroRoutes);
 app.use('/proveedor', proveedorRoutes);
+app.use('/eliminarImagen', deleteImages);
 app.use('/', appRoutes);
 
 
