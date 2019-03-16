@@ -27,7 +27,8 @@ var requisicionSchema = new Schema({
   unidadDeNegocio: { type: String, required: true, enum: unidadesDeNegocio },
   estatus: { type: String, required: true, enum: estatusRequisicion },
   fechaSolicitud: { type: Date, required: true },
-  fechaAprobacionRechazo: { type: Date, required: false }
+  fechaAprobacionRechazo: { type: Date, required: false },
+  aprobador: { type: Schema.Types.ObjectId, ref: "Usuario", required: false }
 });
 
 
