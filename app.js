@@ -41,6 +41,7 @@ var registroLectura = require('./routes/registroLectura');
 var cotizacionRoutes = require('./routes/cotizacion');
 var metaRoutes = require('./routes/meta');
 var cobroRoutes = require('./routes/cobro');
+var proveedorRoutes = require('./routes/proveedor');
 
 //Conexion a base de datos
 mongoose.set("useCreateIndex", true);
@@ -73,6 +74,7 @@ app.use('/registroLectura', registroLectura);
 app.use('/cotizacion', cotizacionRoutes);
 app.use('/meta', metaRoutes);
 app.use('/cobro', cobroRoutes);
+app.use('/proveedor', proveedorRoutes);
 app.use('/', appRoutes);
 
 
