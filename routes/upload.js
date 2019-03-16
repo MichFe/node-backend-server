@@ -11,6 +11,7 @@ var Cliente = require("../models/cliente");
 var Proyecto = require("../models/proyecto");
 var Producto = require("../models/producto");
 var Chat = require("../models/chat");
+var Cotizacion = require("../models/cotizacion");
 
 var app = express();
 
@@ -21,9 +22,10 @@ app.put('/imagen/:tipo/:id', (req, res, next) => {
 
     var tipo = req.params.tipo;
     var id = req.params.id;
-
+    var indexCotizacion = Number(req.query.indexCotizacion);
+    
     //Colecciones válidas
-    var coleccionesValidas = ['usuario', 'cliente', 'proyecto', 'producto', 'chat'];
+    var coleccionesValidas = ['usuario', 'cliente', 'proyecto', 'producto', 'chat', 'cotizacion'];
     
     //Validando coleccion
     if( coleccionesValidas.indexOf(tipo) < 0 ){
@@ -68,9 +70,18 @@ app.put('/imagen/:tipo/:id', (req, res, next) => {
     // Id-random el random ayuda a prevenir el cache del navegador
     var nombreArchivo = `${ id }-${ new Date().getMilliseconds() }.${ extension }`;
 
+    //Si el tipo es cotizacion cambiamos el nombre para incluir en el la posicion de la imagen
+    //en el carrito
+    if( tipo=='cotizacion' ){
+        
+        nombreArchivo = `cotizacion-${id}-${indexCotizacion}-${new Date().getMilliseconds()}.${extension}`;
+
+    }
+
+
     //Mover el archivo del temporal a un path
-    var path = UPLOADS_PATH + `${tipo}/${nombreArchivo}`;
-    
+    var path = UPLOADS_PATH + `${tipo}/${nombreArchivo}`;    
+
     archivo.mv( path, (err)=>{  
 
         if(err){
@@ -83,6 +94,7 @@ app.put('/imagen/:tipo/:id', (req, res, next) => {
 
         var width=200;
 
+        //Manejamos un tamaño mas grande para las imagenes enviadas por el chat
         if(tipo=='chat'){
             width=500;
         }
@@ -123,6 +135,67 @@ app.put('/imagen/:tipo/:id', (req, res, next) => {
     }
 
     function asignarImagen( coleccion, id, nombreArchivo, res){
+
+        if(coleccion==='cotizacion'){
+            Cotizacion.findById(id, (err, cotizacion)=>{
+
+                if (err) {
+                    return res.status(500).json({
+                        ok: false,
+                        mensaje: 'Error al buscar la cotizacion',
+                        errors: err
+                    });
+                }
+
+                if(!cotizacion){
+                    return res.status(400).json({
+                        ok: false,
+                        mensaje: 'No existe la cotización',
+                        errors: {message:'La cotización no existe en la base de datos'}
+                    })
+                }
+
+
+                //validamos si la imagen anterior era una imagen de cotizacion
+                if(cotizacion.productos[indexCotizacion].img.includes('cotizacion')){
+                    var oldPath = UPLOADS_PATH + `${tipo}/` + cotizacion.productos[indexCotizacion].img;
+                    
+                    //Validamos si existe una imagen anterior y la eliminamos
+                    if (fs.existsSync(oldPath)) {
+                        fs.unlink(oldPath, (err) => {
+
+                            if (err) {
+                                return res.status(500).json({
+                                    ok: false,
+                                    mensaje: 'Error al eliminar imagen anterior',
+                                    errors: err
+                                });
+                            }
+                        });
+                    }
+                }           
+
+                cotizacion.productos[indexCotizacion].img=nombreArchivo;
+                cotizacion.markModified('productos');
+                cotizacion.save( (err, cotizacionActualizada) => {
+                    //Manejamos el error al guardar usuario
+                    
+                    if (err) {
+                        return res.status(500).json({
+                            ok: false,
+                            mensaje: 'Error al actualizar cotizacion',
+                            errors: err
+                        });
+                    }
+
+                    return res.status(200).json({
+                        ok: true,
+                        mensaje: 'Imagen guardada exitosamente',
+                        cotizacion: cotizacionActualizada
+                    });
+                });
+            });
+        }
 
         if (coleccion === 'usuario'){
             Usuario.findById(id, (err, usuario)=>{
@@ -388,12 +461,6 @@ app.put('/imagen/:tipo/:id', (req, res, next) => {
 
         }
     }
-
-
-
-
-    
-
 });
 
 module.exports = app;
