@@ -157,7 +157,7 @@ app.put('/imagen/:tipo/:id', (req, res, next) => {
 
 
                 //validamos si la imagen anterior era una imagen de cotizacion
-                if(cotizacion.productos[indexCotizacion].img.includes('cotizacion')){
+                if(cotizacion.productos[indexCotizacion].img && cotizacion.productos[indexCotizacion].img.includes('cotizacion')){
                     var oldPath = UPLOADS_PATH + `${tipo}/` + cotizacion.productos[indexCotizacion].img;
                     
                     //Validamos si existe una imagen anterior y la eliminamos
