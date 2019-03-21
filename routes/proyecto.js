@@ -219,20 +219,43 @@ app.delete('/:id', mdAutenticacion.verificarToken, (req,res)=>{
                             });
                         }
 
-                        Cotizacion.deleteMany({ proyecto: id })
-                            .exec((err, cotizacionEliminada) => {
-
+                        Cotizacion.find({ proyecto: id})
+                            .exec( (err,cotizaciones)=>{
+                                
                                 if (err) {
                                     return res.status(500).json({
                                         ok: false,
-                                        mensaje: 'Error al eliminar la cotizacion del proyecto',
+                                        mensaje: 'Error al buscar las cotizaciones del proyecto',
                                         errors: err
                                     });
                                 }
 
+                                //Eliminamos las imagenes custom de la cotizacion
+                                cotizaciones.forEach((cotizacion)=>{
+                                    
+                                    cotizacion.productos.forEach((producto)=>{
+                                        if(producto.img && producto.img.includes('cotizacion')){
+                                            eliminarImagenCotizacion(producto.img);
+                                        }
+                                    });
+                                });
+                                //Fin de eliminación de imagenes custom de las cotizaciones
+
+                                Cotizacion.deleteMany({ proyecto: id })
+                                    .exec((err, cotizacionEliminada) => {
+
+                                        if (err) {
+                                            return res.status(500).json({
+                                                ok: false,
+                                                mensaje: 'Error al eliminar la cotizacion del proyecto',
+                                                errors: err
+                                            });
+                                        }
+
+
+                                    });
 
                             });
-
 
                         res.status(200).json({
                             ok: true,
@@ -251,6 +274,23 @@ app.delete('/:id', mdAutenticacion.verificarToken, (req,res)=>{
 //========================================================
 // FIN de Eliminar un proyecto
 //========================================================
+
+function eliminarImagenCotizacion(path){
+    var oldPath = UPLOADS_PATH + `cotizacion/${path}`;
+
+    if (fs.existsSync(oldPath)) {
+        fs.unlink(oldPath, (err) => {
+
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    mensaje: 'Error al eliminar imagen anterior',
+                    errors: err
+                });
+            }
+        });
+    }
+}
 
 function eliminarImagen(path){
     var oldPath = UPLOADS_PATH + `chat/` + path;
