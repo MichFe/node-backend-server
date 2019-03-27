@@ -146,7 +146,7 @@ app.put('/:id', mdAutenticacion.verificarToken, (req, res)=>{
             res.status(200).json({
                 ok: true,
                 mensaje: "El proveedor se actualizó exitosamente",
-                requisicion: proveedorActualizado
+                proveedor: proveedorActualizado
             });
         });
     });
@@ -182,7 +182,7 @@ app.delete('/:id', mdAutenticacion.verificarToken, (req,res)=>{
         res.status(200).json({
             ok: true,
             mensaje: "Proveedor eliminado exitosamente",
-            requisicion: requisicionEliminada
+            proveedor: proveedorEliminado
         });
     });
 });
