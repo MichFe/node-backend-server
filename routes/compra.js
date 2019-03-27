@@ -5,6 +5,8 @@ var app = express();
 
 var Compra = require('../models/compra');
 var Proveedor = require('../models/proveedor');
+var Pago = require('../models/pago');
+var Requisicion = require('../models/requisicion');
 
 //========================================================================================
 // Obtener total de compras pagadas y total de saldo pendiente de todos los tiempos
@@ -387,11 +389,37 @@ app.delete('/:id', mdAutenticacion.verificarToken, (req, res) => {
             });
         }
 
-        res.status(200).json({
-            ok: true,
-            mensaje: "Compra eliminada exitosamente",
-            compra: compraEliminada
-        });
+        //Agregamos metodo para eliminar pagos de la compra
+        Pago.deleteMany({ compra: compraEliminada._id })
+            .exec((err,pagosEliminados)=>{
+
+                if (err) {
+                    return res.status(500).json({
+                        ok: false,
+                        mensaje: 'Error al eliminar pagos de esta compra',
+                        errors: err
+                    });
+                }
+
+                //Agregamos metodo para eliminar requisicion de la compra
+                Requisicion.deleteMany({ _id: compraEliminada.requisicion })
+                    .exec((err, requisicionesEliminadas)=>{
+
+                        if (err) {
+                            return res.status(500).json({
+                                ok: false,
+                                mensaje: 'Error al eliminar requisición de esta compra',
+                                errors: err
+                            });
+                        }
+
+                        res.status(200).json({
+                            ok: true,
+                            mensaje: "Compra eliminada exitosamente",
+                            compra: compraEliminada
+                        });
+                    });
+            });
     });
 });
 //===============================================
