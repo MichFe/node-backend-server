@@ -6,6 +6,7 @@ var app=express();
 
 var Cliente = require('../models/cliente');
 var Producto = require('../models/producto');
+var Proveedor = require('../models/proveedor');
 
 
 app.get('/coleccion/:tabla/:busqueda', mdAutenticacion.verificarToken,(req,res)=>{
@@ -28,6 +29,10 @@ app.get('/coleccion/:tabla/:busqueda', mdAutenticacion.verificarToken,(req,res)=
 
         case 'producto':
             promesa = buscarProducto(busqueda, regex);
+            break;
+
+        case 'proveedor':
+            promesa = buscarProveedor(regex);
             break;
 
         default:
@@ -85,6 +90,19 @@ function buscarProducto( buqueda, regex){
             }
         });
 
+    });
+}
+
+function buscarProveedor(regex){
+    return new Promise((resolve, reject)=>{
+        Proveedor.find({nombre: regex})
+            .exec((err, proveedores)=>{
+                if(err){
+                    reject('Error al buscar proveedor', err);
+                }else{
+                    resolve(proveedores);
+                }
+            });
     });
 }
 
