@@ -11,7 +11,7 @@ var unidadesDeNegocio = {
     message: '{VALUE} no es una unidad de negocio válida'
 };
 
-var estatusCompra = {
+var estatusPago = {
     values: [
         'Liquidada',
         'Saldo Pendiente'
@@ -19,22 +19,27 @@ var estatusCompra = {
     message: '{VALUE} no es un estatus válido'
 };
 
+var estatusPedido = {
+    values: [
+        'Pedido',
+        'Recibido'
+    ],
+    message: '{VALUE} no es un estatus válido'
+}
+
 var compraSchema = new Schema({
-    descripcion: { type: String, required: true },
-    cantidad: { type: String, required: true },
-    solicitante: { type: Schema.Types.ObjectId, ref: "Usuario", required: true },
-    unidadDeNegocio: { type: String, required: true, enum: unidadesDeNegocio },
-    fechaSolicitud: { type: Date, required: true },
-    fechaAprobacionRechazo: { type: Date, required: false },
-    aprobador: { type: Schema.Types.ObjectId, ref: "Usuario", required: true },
-    proveedor: { type: Schema.Types.ObjectId, ref:"Proveedor", required: true },
-    costoTotal: { type: Number, required: true }, 
+    requisicion: { type: Schema.Types.ObjectId, ref: 'Requisicion', unique: true, required: true },
     fechaCompra: { type: Date, required: true },
     fechaCompromisoEntrega: { type: Date, required: true },
+    fechaReciboMercancia: { type: Date, required: false },
+    proveedor: { type: Schema.Types.ObjectId, ref:"Proveedor", required: true },
+    costoTotal: { type: Number, required: true }, 
     montoPagado: { type: Number, required: true },
     saldoPendiente: { type: Number, required: true },
-    estatus: { type: String, required: true, enum: estatusCompra },
-    comentarioCompras: { type: String, required: false }
+    estatusPago: { type: String, required: true, enum: estatusPago, default: 'Saldo Pendiente' },
+    comentarioCompras: { type: String, required: false },
+    usuarioCreador: { type: Schema.Types.ObjectId, ref: 'Usuario', required: true },
+    estatusPedido: { type: String, required: true, enum:estatusPedido, default: 'Pedido' }
 });
 
 module.exports = mongoose.model('Compra', compraSchema);
