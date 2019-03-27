@@ -6,13 +6,15 @@ var app = express();
 var Requisicion = require("../models/requisicion");
 
 
+
 //===================================================================
-// Obtener requisiciones Aprobadas paginadas de 10 en 10
+// Obtener requisiciones Aprobadas y sin compra paginadas de 10 en 10
 //===================================================================
 app.get('/aprobadas', mdAutenticacion.verificarToken, (req,res)=>{
     var desde = Number(req.query.desde) || 0;
     var query={
-        estatus: 'Aprobada'
+        estatus: 'Aprobada',
+        compraCreada: false
     };
 
     Requisicion.find(query)
@@ -221,9 +223,16 @@ app.put('/:id', mdAutenticacion.verificarToken, (req, res)=>{
             });
         }
 
-        requisicion.estatus = body.estatus;
-        requisicion.fechaAprobacionRechazo = Date.now();
-        requisicion.aprobador = body.aprobador;
+        (body.descripcion)?requisicion.descripcion=body.descripcion:null;
+        (body.cantidad)?requisicion.cantidad=body.cantidad:null;
+        (body.solicitante)?requisicion.solicitante=body.solicitante:null;
+        (body.unidadDeNegocio)?requisicion.unidadDeNegocio=body.unidadDeNegocio:null;
+        (body.estatus)?requisicion.estatus=body.estatus:null;
+        (body.fechaSolicitud)?requisicion.fechaSolicitud=body.fechaSolicitud:null;
+        (body.fechaAprobacionRechazo)?requisicion.fechaAprobacionRechazo=body.fechaAprobacionRechazo:null;
+        (body.aprobador)?requisicion.aprobador=body.aprobador:null;
+        (body.compraCreada)?requisicion.compraCreada=body.compraCreada:null;
+        (body.productoRecibido)?requisicion.productoRecibido=body.productoRecibido:null;
                         
         requisicion.save( (err, requisicionActualizada)=>{
 
@@ -254,30 +263,58 @@ app.put('/:id', mdAutenticacion.verificarToken, (req, res)=>{
 app.delete('/:id',mdAutenticacion.verificarToken, (req, res)=>{
     var id = req.params.id;
 
-    Requisicion.findByIdAndDelete(id, (err, requisicionEliminada)=>{
+    Requisicion.findById(id)
+        .exec((err,requisicion)=>{
 
-        if(err){
-            return res.status(500).json({
-                ok: false,
-                mensaje: "Error al eliminar requisición",
-                errors: err
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    mensaje: "Error al eliminar requisición",
+                    errors: err
+                });
+            }
+
+            if (!requisicion) {
+                return res.status(400).json({
+                    ok: false,
+                    mensaje: 'La requisición id: ' + id + ', no existe',
+                    errors: { message: 'La requisición que se desea eliminar no existe en la base de datos' }
+                });
+            }
+
+            if (requisicion.estatus === 'Aprobada' || requisicion.estatus === 'Pedido' || requisicion.estatus === 'Recibido'){
+                return res.status(400).json({
+                    ok: false,
+                    mensaje: 'La requisición ya ha sido aprobada y no es posible eliminarla, favor de notificar al departamento de compras',
+                    errors: { message: 'La requisición ya ha sido aprobada y no es posible eliminarla'}
+                });
+            }
+
+            Requisicion.findByIdAndDelete(id, (err, requisicionEliminada) => {
+
+                if (err) {
+                    return res.status(500).json({
+                        ok: false,
+                        mensaje: "Error al eliminar requisición",
+                        errors: err
+                    });
+                }
+
+                if (!requisicionEliminada) {
+                    return res.status(400).json({
+                        ok: false,
+                        mensaje: 'La requisición id: ' + id + ', no existe',
+                        errors: { message: 'La requisición que se desea eliminar no existe en la base de datos' }
+                    });
+                }
+
+                res.status(200).json({
+                    ok: true,
+                    mensaje: "Requisición eliminada exitosamente",
+                    requisicion: requisicionEliminada
+                });
             });
-        }
-
-        if(!requisicionEliminada){
-            return res.status(400).json({
-                ok: false,
-                mensaje: 'La requisición id: ' + id + ', no existe',
-                errors: { message: 'La requisición que se desea eliminar no existe en la base de datos' }
-            });
-        }
-
-        res.status(200).json({
-            ok: true,
-            mensaje: "Requisición eliminada exitosamente",
-            requisicion: requisicionEliminada
         });
-    });
 });
 //=====================================================
 // FIN de Eliminar requisicion
