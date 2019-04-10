@@ -45,6 +45,7 @@ var proveedorRoutes = require('./routes/proveedor');
 var deleteImages = require('./routes/deleteImages');
 var compraRoutes = require('./routes/compra');
 var pagoRoutes = require('./routes/pago');
+var permisosRoutes= require('./routes/permisos');
 
 //Conexion a base de datos
 mongoose.set("useCreateIndex", true);
@@ -81,6 +82,7 @@ app.use('/proveedor', proveedorRoutes);
 app.use('/eliminarImagen', deleteImages);
 app.use('/compra', compraRoutes);
 app.use('/pago', pagoRoutes);
+app.use('/permisos', permisosRoutes);
 app.use('/', appRoutes);
 
 
