@@ -122,7 +122,7 @@ app.get('/familia/:familia', mdAutenticacion.verificarToken, (req, res) => {
 //========================================================
 // Guardar producto
 //========================================================
-app.post('/', mdAutenticacion.verificarToken, (req, res) => {
+app.post('/', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req, res) => {
     var body = req.body;
 
     var producto = new Producto({
@@ -159,7 +159,7 @@ app.post('/', mdAutenticacion.verificarToken, (req, res) => {
 //========================================================
 // Actualizar producto
 //========================================================
-app.put('/:id', mdAutenticacion.verificarToken, (req, res) => {
+app.put('/:id', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req, res) => {
     var id = req.params.id;
     var body = req.body;
 
@@ -214,7 +214,7 @@ app.put('/:id', mdAutenticacion.verificarToken, (req, res) => {
 //========================================================
 // Eliminar un producto
 //========================================================
-app.delete('/:id', mdAutenticacion.verificarToken, (req, res) => {
+app.delete('/:id', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req, res) => {
     var id = req.params.id;
 
     Producto.findByIdAndDelete(id, (err, productoEliminado) => {

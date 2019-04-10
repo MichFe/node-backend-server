@@ -11,7 +11,7 @@ var Requisicion = require('../models/requisicion');
 //========================================================================================
 // Obtener total de compras pagadas y total de saldo pendiente de todos los tiempos
 //========================================================================================
-app.get('/saldoPendiente/todosLosTiempos', mdAutenticacion.verificarToken, (req, res) => {
+app.get('/saldoPendiente/todosLosTiempos', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req, res) => {
     var totalSaldoPendiente;
     var totalMontoPagado;
 
@@ -60,7 +60,7 @@ app.get('/saldoPendiente/todosLosTiempos', mdAutenticacion.verificarToken, (req,
 //==========================================================
 // Obtener lista de proveedores con saldo pendiente
 //==========================================================
-app.get('/proveedoresConSaldo', mdAutenticacion.verificarToken, (req, res) => {
+app.get('/proveedoresConSaldo', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req, res) => {
     Compra.aggregate([
         { $match: { saldoPendiente: { $gt: 0 } } },
         {
@@ -110,7 +110,7 @@ app.get('/proveedoresConSaldo', mdAutenticacion.verificarToken, (req, res) => {
 //===========================================================
 // Obtener compras con saldo pendiente de un proveedor
 //===========================================================
-app.get('/comprasConSaldo/:proveedorId', mdAutenticacion.verificarToken, (req, res) => {
+app.get('/comprasConSaldo/:proveedorId', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req, res) => {
     var proveedorId = req.params.proveedorId;
 
     Compra.find({ 'proveedor': proveedorId, 'saldoPendiente': { $gt: 0 } })
@@ -191,7 +191,7 @@ app.get('/buscarPorRequisicion/:id', mdAutenticacion.verificarToken, (req,res)=>
 //===============================================
 // Obtener compras de 10 en 10
 //===============================================
-app.get('/', mdAutenticacion.verificarToken, (req, res) => {
+app.get('/', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req, res) => {
     var desde = Number(req.query.desde) || 0;
     var soloPedidos = (req.query.soloPedidos=='true') ? true :false;
     var query = {};
@@ -264,7 +264,7 @@ app.get('/', mdAutenticacion.verificarToken, (req, res) => {
 //===============================================
 // Crear una nueva compra 
 //===============================================
-app.post('/', mdAutenticacion.verificarToken, (req, res) => {
+app.post('/', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req, res) => {
     var body = req.body;
 
     var compra = new Compra({
@@ -307,7 +307,7 @@ app.post('/', mdAutenticacion.verificarToken, (req, res) => {
 //===============================================
 // Actualizar compra por Id 
 //===============================================
-app.put('/:id', mdAutenticacion.verificarToken, (req, res) => {
+app.put('/:id', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req, res) => {
     var id = req.params.id;
     var body = req.body;
 
@@ -368,7 +368,7 @@ app.put('/:id', mdAutenticacion.verificarToken, (req, res) => {
 //===============================================
 // Eliminar compra por Id 
 //===============================================
-app.delete('/:id', mdAutenticacion.verificarToken, (req, res) => {
+app.delete('/:id', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req, res) => {
     var id = req.params.id;
 
     Compra.findByIdAndDelete(id, (err, compraEliminada) => {

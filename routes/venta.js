@@ -10,7 +10,7 @@ var Cobro = require('../models/cobro');
 //======================================================
 // Obtener una venta por Id
 //======================================================
-app.get('/ventaPorId/:ventaId', mdAutenticacion.verificarToken, (req,res)=>{
+app.get('/ventaPorId/:ventaId', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req,res)=>{
     var id = req.params.ventaId;
 
     Venta.findById(id)
@@ -46,7 +46,7 @@ app.get('/ventaPorId/:ventaId', mdAutenticacion.verificarToken, (req,res)=>{
 //======================================================
 // Obtener Total de descuentos mensuales
 //======================================================
-app.get('/descuentosAnuales/:year', mdAutenticacion.verificarToken, (req,res)=>{
+app.get('/descuentosAnuales/:year', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req,res)=>{
     var year = Number(req.params.year);
     var fechaInicial = new Date(year, 0, 1, 0, 0, 0, 0);
     var fechaFinal = new Date(year, 11, 31, 0, 0, 0, 0);
@@ -115,7 +115,7 @@ app.get('/descuentosAnuales/:year', mdAutenticacion.verificarToken, (req,res)=>{
 //======================================================
 // Obtener ventas paginadas de 10 en 10
 //======================================================
-app.get('/tablaVentas', mdAutenticacion.verificarToken, (req, res) => {
+app.get('/tablaVentas', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req, res) => {
     var desde = req.query.desde || 0;
     desde = Number(desde);
     var unidadDeNegocio = req.query.unidadDeNegocio;
@@ -190,7 +190,7 @@ app.get('/tablaVentas', mdAutenticacion.verificarToken, (req, res) => {
 //========================================================================================
 // Obtener total de ventas pagadas y total de saldo pendiente de todos los tiempos
 //========================================================================================
-app.get('/saldoPendiente/todosLosTiempos', mdAutenticacion.verificarToken, (req,res)=>{
+app.get('/saldoPendiente/todosLosTiempos', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req,res)=>{
     var totalSaldoPendiente;
     var totalMontoPagado;
 
@@ -239,7 +239,7 @@ app.get('/saldoPendiente/todosLosTiempos', mdAutenticacion.verificarToken, (req,
 //====================================================================
 // Obtener total de ventas pagadas y total de saldo pendiente por año
 //====================================================================
-app.get('/saldoPendiente/:year', mdAutenticacion.verificarToken,( req, res )=>{
+app.get('/saldoPendiente/:year', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, ( req, res )=>{
     var year=Number(req.params.year);
     var fechaInicial = new Date(year, 0, 1, 0, 0, 0, 0);
     var fechaFinal = new Date(year, 11, 31, 0, 0, 0, 0);
@@ -335,7 +335,7 @@ app.get('/saldoPendiente/:year', mdAutenticacion.verificarToken,( req, res )=>{
 //======================================================
 // Obtener total de ventas mensuales en un año
 //======================================================
-app.get('/ventasMensuales/:year', mdAutenticacion.verificarToken, (req, res)=>{
+app.get('/ventasMensuales/:year', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req, res)=>{
     var year=Number(req.params.year);
     var fechaInicial = new Date(year, 0, 1, 0, 0, 0, 0);
     var fechaFinal = new Date( year, 11, 31, 0, 0 ,0 , 0 );
@@ -404,7 +404,7 @@ app.get('/ventasMensuales/:year', mdAutenticacion.verificarToken, (req, res)=>{
 //======================================================
 // Obtener ventas de un mes
 //======================================================
-app.get('/ventasDiarias/:year/:mes', mdAutenticacion.verificarToken, (req ,res)=>{
+app.get('/ventasDiarias/:year/:mes', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req ,res)=>{
     var mes=Number(req.params.mes);
     var year=Number(req.params.year);
     var fechaInicial = new Date(year, mes, 1);
@@ -474,7 +474,7 @@ app.get('/ventasDiarias/:year/:mes', mdAutenticacion.verificarToken, (req ,res)=
 //=========================================================
 // Obtener ventas de un cliente con saldo pendiente
 //=========================================================
-app.get('/ventasConSaldo/:clienteId', mdAutenticacion.verificarToken, ( req, res )=>{
+app.get('/ventasConSaldo/:clienteId', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, ( req, res )=>{
     var clienteId = req.params.clienteId;
 
     Venta.find({ 'cliente': clienteId, 'saldoPendiente': {$gt: 0 }})
@@ -514,7 +514,7 @@ app.get('/ventasConSaldo/:clienteId', mdAutenticacion.verificarToken, ( req, res
 //=========================================================
 // Obtener lista de clientes con saldo pendiente
 //=========================================================
-app.get('/clientesConSaldo', mdAutenticacion.verificarToken, ( req, res )=>{
+app.get('/clientesConSaldo', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, ( req, res )=>{
     Venta.aggregate([
         { $match: { saldoPendiente: {$gt: 0}}},
         { $group:{
@@ -561,7 +561,7 @@ app.get('/clientesConSaldo', mdAutenticacion.verificarToken, ( req, res )=>{
 //==================================
 // Crear venta
 //==================================
-app.post('/', mdAutenticacion.verificarToken, (req, res) => {
+app.post('/', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req, res) => {
     // var body = req.body;
 
     var venta = new Venta({
@@ -606,7 +606,7 @@ app.post('/', mdAutenticacion.verificarToken, (req, res) => {
 //==================================
 // Actualizar un venta
 //==================================
-app.put('/:id', mdAutenticacion.verificarToken, (req, res) => {
+app.put('/:id', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos,(req, res) => {
     var id = req.params.id;
     var body = req.body;
     var devolucion = req.query.devolucion;
@@ -706,7 +706,7 @@ app.put('/:id', mdAutenticacion.verificarToken, (req, res) => {
 //==================================
 // Eliminar venta
 //==================================
-app.delete('/:id', mdAutenticacion.verificarToken, (req, res) => {
+app.delete('/:id', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req, res) => {
     var id = req.params.id;
 
     Venta.findByIdAndDelete(id, (err, ventaEliminada) => {

@@ -9,7 +9,7 @@ var Compra = require('../models/compra');
 //======================================================================
 // Obtener historial de pagos por id de compra
 //======================================================================
-app.get('/:idCompra', (req, res) => {
+app.get('/:idCompra', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req, res) => {
     var idCompra = req.params.idCompra;
 
     Pago.find({ compra: idCompra })
@@ -48,7 +48,7 @@ app.get('/:idCompra', (req, res) => {
 //======================================================================
 // Registrar pago
 //======================================================================
-app.post('/', mdAutenticacion.verificarToken, (req, res) => {
+app.post('/', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req, res) => {
     var body = req.body;
 
     var pago = new Pago({
@@ -187,7 +187,7 @@ app.put('/:pagoId', mdAutenticacion.verificarToken, (req, res) => {
 //======================================================================
 // Eliminar pago por id
 //======================================================================
-app.delete('/:pagoId', mdAutenticacion.verificarToken, (req, res) => {
+app.delete('/:pagoId', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req, res) => {
     var id = req.params.pagoId;
 
     Pago.findByIdAndDelete(id)

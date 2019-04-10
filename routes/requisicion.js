@@ -10,49 +10,51 @@ var Requisicion = require("../models/requisicion");
 //===================================================================
 // Obtener requisiciones Aprobadas y sin compra paginadas de 10 en 10
 //===================================================================
-app.get('/aprobadas', mdAutenticacion.verificarToken, (req,res)=>{
+app.get(
+  "/aprobadas",
+  mdAutenticacion.verificarToken,
+  mdAutenticacion.validarPermisos,
+  (req, res) => {
     var desde = Number(req.query.desde) || 0;
-    var query={
-        estatus: 'Aprobada',
-        compraCreada: false
+    var query = {
+      estatus: "Aprobada",
+      compraCreada: false
     };
 
     Requisicion.find(query)
-        .skip(desde)
-        .limit(10)
-        .populate("solicitante", "nombre email")
-        .populate("aprobador", "nombre")
-        .sort("-fechaSolicitud")
-        .exec( (err,requisiciones)=>{
+      .skip(desde)
+      .limit(10)
+      .populate("solicitante", "nombre email")
+      .populate("aprobador", "nombre")
+      .sort("-fechaSolicitud")
+      .exec((err, requisiciones) => {
+        if (err) {
+          return res.status(500).json({
+            ok: false,
+            mensaje: "Error al consultar requisiciones",
+            errors: err
+          });
+        }
 
-            if (err) {
-                return res.status(500).json({
-                    ok: false,
-                    mensaje: "Error al consultar requisiciones",
-                    errors: err
-                });
-            }
-
-            Requisicion.countDocuments(query, (err, conteoRequisiciones) => {
-
-                if (err) {
-                    return res.status(500).json({
-                        ok: false,
-                        mensaje: "Error al contar requisiciones",
-                        errors: err
-                    });
-                }
-
-                res.status(200).json({
-                    ok: true,
-                    mensaje: "Consulta de requisiciones realizada exitosamente",
-                    requisiciones: requisiciones,
-                    totalReqisiciones: conteoRequisiciones
-                });
+        Requisicion.countDocuments(query, (err, conteoRequisiciones) => {
+          if (err) {
+            return res.status(500).json({
+              ok: false,
+              mensaje: "Error al contar requisiciones",
+              errors: err
             });
+          }
 
+          res.status(200).json({
+            ok: true,
+            mensaje: "Consulta de requisiciones realizada exitosamente",
+            requisiciones: requisiciones,
+            totalReqisiciones: conteoRequisiciones
+          });
         });
-});
+      });
+  }
+);
 //===================================================================
 // FIN de Obtener requisiciones Aprobadas paginadas de 10 en 10
 //===================================================================
@@ -60,7 +62,7 @@ app.get('/aprobadas', mdAutenticacion.verificarToken, (req,res)=>{
 //==================================================================
 // Obtener requisiciones por aprobar paginadas de 10 en 10
 //==================================================================
-app.get('/porAprobar', mdAutenticacion.verificarToken, (req, res)=>{
+app.get('/porAprobar', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req, res)=>{
     var desde = Number(req.query.desde) || 0;
     var query={
         estatus: 'Por aprobar'
@@ -164,7 +166,7 @@ app.get('/', mdAutenticacion.verificarToken,(req, res) => {
 //=====================================================
 // Crear requisicion
 //=====================================================
-app.post('/', mdAutenticacion.verificarToken, (req, res)=>{
+app.post('/', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req, res)=>{
     var body=req.body;
 
     var requisicion = new Requisicion({
@@ -201,7 +203,7 @@ app.post('/', mdAutenticacion.verificarToken, (req, res)=>{
 //=====================================================
 // Actualizar requisicion
 //=====================================================
-app.put('/:id', mdAutenticacion.verificarToken, (req, res)=>{
+app.put('/:id', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req, res)=>{
     var id = req.params.id;
     var body = req.body;
 
@@ -260,7 +262,7 @@ app.put('/:id', mdAutenticacion.verificarToken, (req, res)=>{
 //=====================================================
 // Eliminar requisicion
 //=====================================================
-app.delete('/:id',mdAutenticacion.verificarToken, (req, res)=>{
+app.delete('/:id', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req, res)=>{
     var id = req.params.id;
 
     Requisicion.findById(id)

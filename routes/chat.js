@@ -10,7 +10,7 @@ var app = express();
 var Chat = require('../models/chat');
 var Proyecto = require('../models/proyecto');
 
-app.get('/:idProyecto', mdAutenticacion.verificarToken, (req, res) => {
+app.get('/:idProyecto', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req, res) => {
     var proyectoId=req.params.idProyecto;
     var chatsCargados= req.query.chatsCargados || 0;
 
@@ -63,7 +63,7 @@ app.get('/:idProyecto', mdAutenticacion.verificarToken, (req, res) => {
 
 });
 
-app.post('/', mdAutenticacion.verificarToken, (req,res)=>{
+app.post('/', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req,res)=>{
     var body = req.body;
 
     var chat = new Chat({
@@ -201,7 +201,7 @@ app.get("/conteoChats/proyectos/:id", mdAutenticacion.verificarToken, ( req, res
       });
 });
 
-app.delete('/:id', mdAutenticacion.verificarToken, ( req, res )=>{
+app.delete('/:id', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, ( req, res )=>{
     var id = req.params.id;
 
     Chat.findByIdAndDelete(id)

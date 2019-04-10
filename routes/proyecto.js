@@ -12,7 +12,7 @@ var Cotizacion=require('../models/cotizacion');
 //========================================================
 // Obtener todos los proyectos de un cliente
 //========================================================
-app.get('/:id', mdAutenticacion.verificarToken, (req,res)=>{
+app.get('/:id', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req,res)=>{
     var id=req.params.id;
     
     var desde = req.query.desde || 0;
@@ -68,7 +68,7 @@ app.get('/:id', mdAutenticacion.verificarToken, (req,res)=>{
 //========================================================
 // Guardar proyecto
 //========================================================
-app.post('/', mdAutenticacion.verificarToken, (req,res)=>{
+app.post('/', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req,res)=>{
     var body=req.body;
 
     var proyecto = new Proyecto({
@@ -164,7 +164,7 @@ app.put('/:id', mdAutenticacion.verificarToken, (req,res)=>{
 //========================================================
 // Eliminar un proyecto
 //========================================================
-app.delete('/:id', mdAutenticacion.verificarToken, (req,res)=>{
+app.delete('/:id', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req,res)=>{
     var id = req.params.id;
 
     Proyecto.findByIdAndDelete(id, (err, proyectoEliminado)=>{

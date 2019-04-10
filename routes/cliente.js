@@ -8,7 +8,7 @@ var Cliente = require('../models/cliente');
 //==================================
 // Obtener todos los clientes
 //==================================
-app.get('/', mdAutenticacion.verificarToken , (req, res)=>{
+app.get('/', mdAutenticacion.verificarToken , mdAutenticacion.validarPermisos, (req, res)=>{
     var desde = req.query.desde || 0;
     desde = Number(desde);
 
@@ -55,7 +55,7 @@ app.get('/', mdAutenticacion.verificarToken , (req, res)=>{
 //==================================
 // Crear cliente
 //==================================
-app.post('/', mdAutenticacion.verificarToken, (req, res)=>{
+app.post('/', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req, res)=>{
     var body=req.body;
 
     var cliente = new Cliente({
@@ -95,7 +95,7 @@ app.post('/', mdAutenticacion.verificarToken, (req, res)=>{
 //==================================
 // Actualizar un cliente
 //==================================
-app.put('/:id', mdAutenticacion.verificarToken, (req, res)=>{
+app.put('/:id', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req, res)=>{
     var id = req.params.id;
     var body=req.body;
 

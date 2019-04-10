@@ -39,7 +39,7 @@ app.get('/', mdAutenticacion.verificarToken, (req,res)=>{
                         errors: err
                     });
                 }  
-
+                
                 res.status(200).json({
                     ok: true,
                     mensaje: 'Consulta de cotizaciones realizada exitosamente',
@@ -57,7 +57,7 @@ app.get('/', mdAutenticacion.verificarToken, (req,res)=>{
 //======================================================================
 // Obtener cotizacion por id de proyecto
 //======================================================================
-app.get('/cotizacionProyecto/:id', mdAutenticacion.verificarToken, (req, res)=>{
+app.get('/cotizacionProyecto/:id', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req, res)=>{
     var idProyecto = req.params.id;
 
     Cotizacion.find({ proyecto: idProyecto })
@@ -98,7 +98,7 @@ app.get('/cotizacionProyecto/:id', mdAutenticacion.verificarToken, (req, res)=>{
 //======================================================================
 // Crear cotizacion de un proyecto
 //======================================================================
-app.post('/', mdAutenticacion.verificarToken, (req, res)=>{
+app.post('/', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos,(req, res)=>{
     var body = req.body;
 
     var cotizacion = new Cotizacion({
@@ -135,7 +135,7 @@ app.post('/', mdAutenticacion.verificarToken, (req, res)=>{
 //======================================================================
 // Actualizar cotizacion por id
 //======================================================================
-app.put('/:id', mdAutenticacion.verificarToken, (req,res)=>{
+app.put('/:id', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req,res)=>{
     var id = req.params.id;
     var body = req.body;
 
@@ -190,7 +190,7 @@ app.put('/:id', mdAutenticacion.verificarToken, (req,res)=>{
 //======================================================================
 // Eliminar cotización por id
 //======================================================================
-app.delete('/:id', mdAutenticacion.verificarToken, (req, res)=>{
+app.delete('/:id', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req, res)=>{
     var id = req.params.id;
 
     Cotizacion.findByIdAndDelete(id, (err, cotizacionEliminada)=>{

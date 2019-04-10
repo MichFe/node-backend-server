@@ -9,7 +9,7 @@ var Venta = require('../models/venta');
 //======================================================================
 // Obtener historial de cobros por id de venta
 //======================================================================
-app.get('/:idVenta', (req, res) => {
+app.get('/:idVenta', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req, res) => {
     var idVenta = req.params.idVenta;
 
     Cobro.find({ venta: idVenta })
@@ -48,7 +48,7 @@ app.get('/:idVenta', (req, res) => {
 //======================================================================
 // Registrar cobro
 //======================================================================
-app.post('/', mdAutenticacion.verificarToken, (req, res)=>{
+app.post('/', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req, res)=>{
     var body = req.body;
 
     var pago = new Cobro({
@@ -187,7 +187,7 @@ app.put('/:pagoId', mdAutenticacion.verificarToken, (req,res)=>{
 //======================================================================
 // Eliminar cobro por id
 //======================================================================
-app.delete('/:cobroId', mdAutenticacion.verificarToken, (req,res)=>{
+app.delete('/:cobroId', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req,res)=>{
     var id = req.params.cobroId;
 
     Cobro.findByIdAndDelete(id)

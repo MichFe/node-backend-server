@@ -5,7 +5,7 @@ var app = express();
 
 var Meta = require('../models/meta');
 
-app.get('/:year', mdAutenticacion.verificarToken ,(req, res, next) => {
+app.get('/:year', mdAutenticacion.verificarToken, (req, res, next) => {
     var year=req.params.year;
     var unidadDeNegocio = req.query.unidadDeNegocio;
 
@@ -67,7 +67,7 @@ app.post('/', mdAutenticacion.verificarToken, (req,res)=>{
 
 });
 
-app.put('/:id', mdAutenticacion.verificarToken, (req,res)=>{
+app.put('/:id', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req,res)=>{
     var id=req.params.id;
     var body=req.body;
 
