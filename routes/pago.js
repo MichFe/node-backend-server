@@ -24,7 +24,7 @@ app.get('/:idCompra', mdAutenticacion.verificarToken, mdAutenticacion.validarPer
             }
 
             if (!pagosCompra) {
-                return res.status.json({
+                return res.status(400).json({
                     ok: false,
                     mensaje: 'No hay historial de pagos asociado a esa compra',
                     errors: { message: 'No hay historial de pagos para la compra id: ' + idCompra }
