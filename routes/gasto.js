@@ -109,7 +109,7 @@ app.post('/', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (
 //======================================================================
 app.put('/:gastoId', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req, res) => {
     var id = req.params.gastoId;
-    var body = req.params.body;
+    var body = req.body;
 
     Gasto.findById(id)
         .exec((err, gasto) => {
@@ -129,7 +129,7 @@ app.put('/:gastoId', mdAutenticacion.verificarToken, mdAutenticacion.validarPerm
                     errors: { message: 'El gasto no existe en la base de datos' }
                 });
             }
-
+                        
             //Valores a actualizar
             (body.fecha != null) ? gasto.fecha = body.fecha : null;
             (body.monto != null) ? gasto.monto = body.monto : null;
