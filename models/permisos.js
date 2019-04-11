@@ -13,6 +13,7 @@ var modulos = {
     "Aprobaciones",
     "Compras",
     "Permisos",
+    "Gastos"
   ],
   message: '{VALUE} no es un módulo válido'
 };
@@ -68,7 +69,11 @@ var permisos = {
     "Ver proveedores con saldo",
     "Ver saldo pendiente total",
     "Ver compras con saldo de cada proveedor",
-    "Ver pagos de cada venta"
+    "Ver pagos de cada venta",
+    "Ver Gastos",
+    "Registrar Gastos",
+    "Editar Gastos",
+    "Eliminar Gastos"
   ],
   message: "{VALUE} no es un permiso válido"
 };
@@ -115,7 +120,9 @@ var urls = {
     "/aprobadas",
     "/compra/proveedoresConSaldo",
     "/compra/saldoPendiente/todosLosTiempos",
-    "/compra/comprasConSaldo/:proveedorId"
+    "/compra/comprasConSaldo/:proveedorId",
+    "/gasto/",
+    "/gasto/:gastoId"
   ],
   message: "{VALUE} no es una url válida"
 };
