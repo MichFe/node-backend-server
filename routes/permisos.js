@@ -1,6 +1,6 @@
 var express = require("express");
 var mdAutenticacion = require("../middlewares/autenticacion");
-var permisosDefault = require("../config/permisosDefault").PERMISOS_DEFAULT;
+var permisosDefault = require("../data/permisosDefault").PERMISOS_DEFAULT;
 
 var app = express();
 
