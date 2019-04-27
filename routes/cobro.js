@@ -13,6 +13,7 @@ app.get('/:idVenta', mdAutenticacion.verificarToken, mdAutenticacion.validarPerm
     var idVenta = req.params.idVenta;
 
     Cobro.find({ venta: idVenta })
+        .sort("-fecha")
         .exec( (err, cobrosVenta)=>{
 
             if(err){
