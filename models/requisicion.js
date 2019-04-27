@@ -30,9 +30,11 @@ var requisicionSchema = new Schema({
   estatus: { type: String, required: true, enum: estatusRequisicion },
   fechaSolicitud: { type: Date, required: true },
   fechaAprobacionRechazo: { type: Date, required: false },
+  fechaCompromisoProveedor: { type: Date, required: false },
   aprobador: { type: Schema.Types.ObjectId, ref: "Usuario", required: false },
   compraCreada: { type:Boolean, default: false, required: false },
-  productoRecibido: { type: Boolean, default: false, required: false }
+  productoRecibido: { type: Boolean, default: false, required: false },
+  compra:{ type: Schema.Types.ObjectId, ref: "Compra", required: false }
 });
 
 

@@ -176,7 +176,8 @@ app.post('/', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (
         unidadDeNegocio: body.unidadDeNegocio,
         estatus: "Por aprobar",
         fechaSolicitud: body.fechaSolicitud,
-        fechaAprobacionRechazo: null
+        fechaAprobacionRechazo: null,
+        compra: null
     });
 
     requisicion.save( (err, requisicionGuardada)=>{
@@ -225,6 +226,7 @@ app.put('/:id', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos,
             });
         }
 
+        (body.compra) ? requisicion.compra = body.compra:null; 
         (body.descripcion)?requisicion.descripcion=body.descripcion:null;
         (body.cantidad)?requisicion.cantidad=body.cantidad:null;
         (body.solicitante)?requisicion.solicitante=body.solicitante:null;
@@ -235,6 +237,7 @@ app.put('/:id', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos,
         (body.aprobador)?requisicion.aprobador=body.aprobador:null;
         (body.compraCreada)?requisicion.compraCreada=body.compraCreada:null;
         (body.productoRecibido)?requisicion.productoRecibido=body.productoRecibido:null;
+        (body.fechaCompromisoProveedor) ? requisicion.fechaCompromisoProveedor = body.fechaCompromisoProveedor:null;
                         
         requisicion.save( (err, requisicionActualizada)=>{
 
