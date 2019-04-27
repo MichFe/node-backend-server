@@ -189,11 +189,47 @@ app.get('/buscarPorRequisicion/:id', mdAutenticacion.verificarToken, (req,res)=>
 //===============================================
 
 //===============================================
+// Obtener una compra por Id
+//===============================================
+app.get('/buscarPorId/:id', mdAutenticacion.verificarToken, (req,res)=>{
+   var id=req.params.id;
+   
+   Compra.findById(id)
+    .exec((err, compra)=>{
+        if(err){
+            return res.status(500).json({
+                ok: false,
+                mensaje: 'Error al buscar la compra conel id: ' + id,
+                errors: err
+            });
+        }
+
+        if(!compra){
+            return res.status(400).json({
+                ok: false,
+                mensaje: 'La compra no existe en la base de datos',
+                errors: { message: 'No existe una compra con ese id en la base de datos'}
+            });
+        }
+
+        res.status(200).json({
+            ok: true,
+            mensaje: 'Consulta de compra exitosa',
+            compra: compra
+        });
+    });
+});
+//===============================================
+// FIN de Obtener una compra por Id
+//===============================================
+
+//===============================================
 // Obtener compras de 10 en 10
 //===============================================
 app.get('/', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req, res) => {
     var desde = Number(req.query.desde) || 0;
-    var soloPedidos = (req.query.soloPedidos=='true') ? true :false;
+    var soloPedidos = (req.query.soloPedidos=='true') ? true : false;
+    var soloRecibidos = req.query.soloRecibidos == "true" ? true : false;
     var query = {};
 
     if(soloPedidos){
@@ -202,10 +238,16 @@ app.get('/', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (r
         };
     }
 
+    if(soloRecibidos){
+        query = {
+          estatusPedido: "Recibido"
+        };
+    }
+
     Compra.find(query)
         .skip(desde)
         .limit(10)
-        .sort("fechaCompra")
+        .sort("-fechaCompra")
         .populate("proveedor", "nombre")
         .populate("requisicion", "descripcion cantidad solicitante")
         .populate({
@@ -269,7 +311,7 @@ app.post('/', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (
 
     var compra = new Compra({
 
-        requisicion: body.requisicion,
+        requisiciones: body.requisiciones,
         fechaCompra: body.fechaCompra,
         fechaCompromisoEntrega: body.fechaCompromisoEntrega,
         fechaReciboMercancia: body.fechaReciboMercancia,
@@ -278,9 +320,10 @@ app.post('/', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (
         montoPagado: body.montoPagado,
         saldoPendiente: body.saldoPendiente,
         estatus: body.estatus,
+        descripcionCompra: body.descripcionCompra,
         comentarioCompras: body.comentarioCompras,
-        usuarioCreador: body.usuarioCreador
-
+        usuarioCreador: body.usuarioCreador,
+        tipoDeProveedor: body.tipoDeProveedor
     });
 
     compra.save((err, compraGuardada) => {
@@ -330,7 +373,7 @@ app.put('/:id', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos,
         }
 
         //Propiedades a actualizar
-        (body.requisicion) ? compra.requisicion = body.requisicion : null;
+        (body.requisiciones) ? compra.requisiciones = body.requisiciones : null;
         (body.fechaCompra) ? compra.fechaCompra = body.fechaCompra : null;
         (body.fechaCompromisoEntrega) ? compra.fechaCompromisoEntrega = body.fechaCompromisoEntrega : null;
         (body.fechaReciboMercancia) ? compra.fechaReciboMercancia = body.fechaReciboMercancia : null;
@@ -339,9 +382,11 @@ app.put('/:id', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos,
         (body.montoPagado) ? compra.montoPagado = body.montoPagado : null;
         (body.saldoPendiente) ? compra.saldoPendiente = body.saldoPendiente : null;
         (body.estatusPago) ? compra.estatusPago = body.estatusPago : null;
+        (body.descripcionCompra) ? compra.descripcionCompra = body.descripcionCompra : null;
         (body.comentarioCompras) ? compra.comentarioCompras = body.comentarioCompras : null;
         (body.usuarioCreador) ? compra.usuarioCreador = body.usuarioCreador : null;
         (body.estatusPedido) ? compra.estatusPedido = body.estatusPedido : null;
+        (body.tipoDeProveedor) ? compra.tipoDeProveedor = body.tipoDeProveedor : null;
 
         compra.save((err, compraActualizada) => {
 
