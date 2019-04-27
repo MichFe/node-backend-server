@@ -13,6 +13,7 @@ app.get('/:idCompra', mdAutenticacion.verificarToken, mdAutenticacion.validarPer
     var idCompra = req.params.idCompra;
 
     Pago.find({ compra: idCompra })
+        .sort("-fecha")
         .exec((err, pagosCompra) => {
 
             if (err) {
