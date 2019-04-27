@@ -5,6 +5,7 @@ var app = express();
 
 var Gasto = require('../models/gasto');
 var Pago = require('../models/pago');
+var Compra = require('../models/compra');
 
 //======================================================================
 // Obtener gastos paginados de 10 en 10
@@ -80,7 +81,8 @@ app.post('/', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (
       descripcion: body.descripcion,
       categoria: body.categoria,
       proveedor: body.proveedor,
-      pagoCompra: body.pagoCompra
+      pagoCompra: body.pagoCompra,
+    gastoOperativo: body.gastoOperativo
     });
 
     gasto.save((err, gastoGuardado) => {
@@ -137,6 +139,7 @@ app.put('/:gastoId', mdAutenticacion.verificarToken, mdAutenticacion.validarPerm
             (body.categoria != null) ? gasto.categoria = body.categoria : null;
             (body.proveedor != null) ? gasto.proveedor = body.proveedor : null;
             (body.pagoCompra != null) ? gasto.pagoCompra = body.pagoCompra : null;
+            (body.gastoOperativo != null) ? gasto.gastoOperativo = body.gastoOperativo : null;
 
             gasto.save((err, gastoActualizado) => {
 
@@ -189,7 +192,7 @@ app.delete('/:gastoId', mdAutenticacion.verificarToken, mdAutenticacion.validarP
             if(gastoEliminado.pagoCompra){
                 // Si era el pago de una compra, debemos eliminar el pago y 
                 // actualizar la compra
-                Pago.findByIdAndDelete(id)
+                Pago.findByIdAndDelete(gastoEliminado.pagoCompra)
                     .exec((err, pagoEliminado) => {
                         if (err) {
                             return res.status(500).json({

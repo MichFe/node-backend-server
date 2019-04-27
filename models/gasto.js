@@ -4,15 +4,20 @@ var Schema = mongoose.Schema;
 
 var categoriasDeGasto = {
     values: [
-        'Materiales e Insumos',
-        'Servicios',
-        'Transporte',
-        'Mantenimiento y Reparaciones',
-        'Viáticos',
-        'Servicios Profesionales',
-        'Nomina',
-        'Pago a proveedores', // Opcion para registro de gasto al registrar un pago a proveedores
-        'Otros'
+        "Proveedores Productos",
+        "Proveedores Materia Prima",
+        "Proveedores Maquila",
+        "Nómina",
+        "Otros",
+        "Fletes",
+        "Publicidad",
+        "Gastos no Operativos",
+        "Comisiones por Ventas",
+        "Impuestos",
+        "Transporte",
+        "Maquinaria/Equipo",
+        "Mantenimiento",
+        "Renta/Servicios"
     ],
     message: '{VALUE} no es una categoría válida'
 };
@@ -24,7 +29,8 @@ var gastoSchema = new Schema({
     descripcion: { type: String, required: true },
     categoria: { type: String, required: true, enum: categoriasDeGasto },
     proveedor: { type: Schema.Types.ObjectId, ref: 'Proveedor', required: true },
-    pagoCompra: { type: Schema.Types.ObjectId, ref: 'Pago', required: false }
+    pagoCompra: { type: Schema.Types.ObjectId, ref: 'Pago', required: false },
+    gastoOperativo: { type: Boolean, required: true }
 });
 
 
