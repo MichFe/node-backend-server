@@ -446,24 +446,28 @@ app.delete('/:id', mdAutenticacion.verificarToken, mdAutenticacion.validarPermis
                     });
                 }
 
-                //Agregamos metodo para eliminar requisicion de la compra
-                Requisicion.deleteMany({ _id: compraEliminada.requisicion })
-                    .exec((err, requisicionesEliminadas)=>{
+                //Agregamos metodo para eliminar requisiciones de la compra
+                compraEliminada.requisiciones.forEach((requisicion)=>{
 
-                        if (err) {
-                            return res.status(500).json({
-                                ok: false,
-                                mensaje: 'Error al eliminar requisición de esta compra',
-                                errors: err
-                            });
-                        }
-
-                        res.status(200).json({
-                            ok: true,
-                            mensaje: "Compra eliminada exitosamente",
-                            compra: compraEliminada
+                    Requisicion.findByIdAndDelete(requisicion._id)
+                        .exec((err,requisicionesEliminadas)=>{
+                            if (err) {
+                                return res.status(500).json({
+                                    ok: false,
+                                    mensaje: 'Error al eliminar requisición de esta compra',
+                                    errors: err
+                                });
+                            }
                         });
-                    });
+
+                });
+
+                res.status(200).json({
+                    ok: true,
+                    mensaje: "Compra eliminada exitosamente",
+                    compra: compraEliminada
+                });
+                
             });
     });
 });
