@@ -7,6 +7,66 @@ var Pago = require('../models/pago');
 var Compra = require('../models/compra');
 
 //======================================================================
+// Obtener cobros de 10 en 10
+//======================================================================
+app.get('/', mdAutenticacion.verificarToken, (req, res) => {
+    var idVenta = req.params.idVenta;
+    var desde = Number(req.query.desde);
+
+    Pago.find({})
+        .sort("-fecha")
+        .skip(desde)
+        .limit(10)
+        .populate('proveedor', 'nombre')
+        .exec((err, pagos) => {
+
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    mensaje: 'Error al buscar historial de pagos',
+                    errors: err
+                });
+            }
+
+            if (!pagos) {
+                return res.status.json({
+                    ok: false,
+                    mensaje: 'No hay historial de pagos asociado a esa compra',
+                    errors: { message: 'No hay historial de pagos para la compra id: ' + idVenta }
+                });
+            }
+
+            Pago.countDocuments()
+                .exec((err, conteoPagos) => {
+
+                    if (err) {
+                        return res.status(500).json({
+                            ok: false,
+                            mensaje: 'Error al buscar historial de pagos',
+                            errors: err
+                        });
+                    }
+
+                    res.status(200).json({
+                        ok: true,
+                        mensaje: 'Consulta de historial de pagos exitosa',
+                        pagos: pagos,
+                        conteo: conteoPagos
+                    });
+
+                });
+
+
+
+        });
+
+
+});
+//======================================================================
+// FIN de Obtener cobros de 10 en 10
+//======================================================================
+
+//======================================================================
 // Obtener historial de pagos por id de compra
 //======================================================================
 app.get('/:idCompra', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req, res) => {

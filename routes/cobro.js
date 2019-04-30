@@ -7,6 +7,66 @@ var Cobro = require('../models/cobro');
 var Venta = require('../models/venta');
 
 //======================================================================
+// Obtener cobros de 10 en 10
+//======================================================================
+app.get('/', mdAutenticacion.verificarToken, (req, res) => {
+    var idVenta = req.params.idVenta;
+    var desde = Number(req.query.desde);
+
+    Cobro.find({})
+        .sort("-fecha")
+        .skip(desde)
+        .limit(10)
+        .populate('cliente', 'nombre')
+        .exec((err, cobros) => {
+
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    mensaje: 'Error al buscar historial de pagos',
+                    errors: err
+                });
+            }
+
+            if (!cobros) {
+                return res.status.json({
+                    ok: false,
+                    mensaje: 'No hay historial de pagos asociado a esa venta',
+                    errors: { message: 'No hay historial de pagos para la venta id: ' + idVenta }
+                });
+            }
+
+            Cobro.countDocuments()
+                .exec((err,conteoCobros)=>{
+
+                    if (err) {
+                        return res.status(500).json({
+                            ok: false,
+                            mensaje: 'Error al buscar historial de pagos',
+                            errors: err
+                        });
+                    }
+
+                    res.status(200).json({
+                        ok: true,
+                        mensaje: 'Consulta de historial de pagos exitosa',
+                        pagos: cobros,
+                        conteo: conteoCobros
+                    });
+
+                });
+
+            
+
+        });
+
+
+});
+//======================================================================
+// FIN de Obtener cobros de 10 en 10
+//======================================================================
+
+//======================================================================
 // Obtener historial de cobros por id de venta
 //======================================================================
 app.get('/:idVenta', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req, res) => {
