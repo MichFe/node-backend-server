@@ -30,7 +30,8 @@ var usuarioSchema = new Schema({
     password: { type: String, required:[ true, "La contraseña es necesaria"]},
     img: { type:String, required:false },
     role: { type:String, required:true, default: 'USER_ROLE', enum: rolesValidos },
-    unidadDeNegocio: { type: String, required: true, enum: unidadesDeNegocio }
+    unidadDeNegocio: { type: String, required: true, enum: unidadesDeNegocio },
+    salario: { type: Number, required: false}
 });
 
 usuarioSchema.plugin( uniqueValidator, { message:'El {PATH} debe de ser único' } );
