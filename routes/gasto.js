@@ -7,6 +7,317 @@ var Gasto = require('../models/gasto');
 var Pago = require('../models/pago');
 var Compra = require('../models/compra');
 
+
+
+//======================================================
+// Obtener total de gastos mensuales en un año
+//======================================================
+app.get('/gastosMensuales/:year', mdAutenticacion.verificarToken,  (req, res) => {
+    var year = Number(req.params.year);
+    var fechaInicial = new Date(year, 0, 1, 0, 0, 0, 0);
+    var fechaFinal = new Date(year, 11, 31, 0, 0, 0, 0);
+
+    var categoria = req.query.categoria;
+    var query = {};
+
+    if (categoria.length > 1) {
+
+        query = {
+            'fecha': {
+                $gte: fechaInicial,
+                $lte: fechaFinal
+            },
+            'categoria': categoria
+        };
+
+    } else {
+
+        query = {
+            'fecha': {
+                $gte: fechaInicial,
+                $lte: fechaFinal
+            }
+        }
+    }
+
+    Gasto.find(query)
+        .sort('fecha')
+        .exec((err, gastosYear) => {
+
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    mensaje: 'Error al buscar gastos del año: ' + year,
+                    errors: err
+                });
+            }
+
+            if (!gastosYear) {
+                return res.status(400).json({
+                    ok: false,
+                    mensaje: 'No hay gastos registrados en el año: ' + year,
+                    errors: { message: 'No hay gastos registrados en el año de busqueda seleccionado' }
+                });
+            }
+
+            var gastosMensuales = calcularGastosMensuales(gastosYear);
+
+            res.status(200).json({
+                ok: true,
+                mensaje: 'Consulta de gastos realizada exitosamente',
+                gastosMensuales: gastosMensuales,
+            });
+
+
+
+
+        });
+
+});
+//======================================================
+// FIN Obtener total de gastos por mes, de un año
+//======================================================
+
+//======================================================
+// Obtener total diario de gastos en un mes
+//======================================================
+app.get('/gastosDiarios/:year/:mes', mdAutenticacion.verificarToken,  (req, res) => {
+    var mes = Number(req.params.mes);
+    var year = Number(req.params.year);
+    var fechaInicial = new Date(year, mes, 1);
+    var fechaFinal = new Date(year, mes + 1, 0);
+
+    var categoria = req.query.categoria;
+    var query = {};
+
+    if (categoria.length > 1) {
+        query = {
+            'fecha': {
+                $gte: fechaInicial,
+                $lte: fechaFinal
+            },
+            categoria: categoria
+        };
+    } else {
+        query = {
+            'fecha': {
+                $gte: fechaInicial,
+                $lte: fechaFinal
+            }
+        };
+    }
+
+    Gasto.find(query)
+        .sort('fecha')
+        .exec((err, gastosMes) => {
+
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    mensaje: 'Error al buscar gastos del mes: ' + mes,
+                    errors: err
+                });
+            }
+
+            if (!gastosMes) {
+                return res.status(400).json({
+                    ok: false,
+                    mensaje: 'No hay gastos registrados en el mes: ' + mes,
+                    errors: { message: 'No hay gastos registrados en el mes de busqueda seleccionado' }
+                });
+            }
+
+            var dias = fechaFinal.getDate();
+
+            var gastosDiarios = calcularGastosDiarios(gastosMes, dias);
+
+            res.status(200).json({
+                ok: true,
+                mensaje: 'Consulta de gastos realizada exitosamente',
+                gastosDiarios: gastosDiarios,
+            });
+
+
+
+        });
+
+
+
+});
+//======================================================
+// FIN de Obtener total diario de gastos en un mes
+//======================================================
+
+//====================================================================
+// Obtener total de ventas pagadas y total de saldo pendiente por año
+//====================================================================
+app.get('/saldoPendiente/:year', mdAutenticacion.verificarToken, (req, res) => {
+    var year = Number(req.params.year);
+    var fechaInicial = new Date(year, 0, 1, 0, 0, 0, 0);
+    var fechaFinal = new Date(year, 11, 31, 0, 0, 0, 0);
+    var totalSaldoPendiente;
+    var totalMontoPagado;
+    var categoria = req.query.categoria;
+
+    if (categoria.length > 1) {
+
+        Compra.aggregate([
+            {
+                $match: {
+                    fechaCompra: { $gte: fechaInicial, $lte: fechaFinal }
+                }
+            },
+            {
+                $match: {
+                    tipoDeProveedor: { $eq: categoria }
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalMontoPagado: { $sum: '$montoPagado' },
+                    totalSaldoPendiente: { $sum: '$saldoPendiente' }
+                }
+            }], (err, totales) => {
+                if (err) {
+                    return res.status(500).json({
+                        ok: false,
+                        mensaje: 'Error al sumar saldoPendiente y montoPagado',
+                        errors: err
+                    });
+                }
+
+                if (!totales[0]) {
+                    totalSaldoPendiente = 0;
+                    totalMontoPagado = 0;
+                } else {
+                    totalSaldoPendiente = totales[0].totalSaldoPendiente;
+                    totalMontoPagado = totales[0].totalMontoPagado;
+                }
+
+
+                res.status(200).json({
+                    ok: true,
+                    mensaje: 'Consulta de totales realizada exitosamente',
+                    totalSaldoPendiente: totalSaldoPendiente,
+                    totalMontoPagado: totalMontoPagado
+                });
+            });
+
+    } else {
+        Compra.aggregate([
+            {
+                $match: {
+                    fechaCompra: { $gte: fechaInicial, $lte: fechaFinal }
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalMontoPagado: { $sum: '$montoPagado' },
+                    totalSaldoPendiente: { $sum: '$saldoPendiente' }
+                }
+            }], (err, totales) => {
+                if (err) {
+                    return res.status(500).json({
+                        ok: false,
+                        mensaje: 'Error al sumar saldoPendiente y montoPagado',
+                        errors: err
+                    });
+                }
+
+                if (totales[0]) {
+                    totalSaldoPendiente = totales[0].totalSaldoPendiente;
+                    totalMontoPagado = totales[0].totalMontoPagado;
+                } else {
+                    totalSaldoPendiente = 0;
+                    totalMontoPagado = 0;
+                }
+
+                res.status(200).json({
+                    ok: true,
+                    mensaje: 'Consulta de totales realizada exitosamente',
+                    totalSaldoPendiente: totalSaldoPendiente,
+                    totalMontoPagado: totalMontoPagado
+                });
+            });
+    }
+
+
+
+});
+//===========================================================================
+// FIN de Obtener total de ventas pagadas y total de saldo pendiente por año
+//===========================================================================
+
+//====================================================================================
+// Obtener gastos paginadas de 10 en 10 para la tabla del reporte de gastos
+//====================================================================================
+app.get('/tablaGastos', mdAutenticacion.verificarToken, (req, res) => {
+    var desde = req.query.desde || 0;
+    desde = Number(desde);
+    var categoria = req.query.categoria;
+    var year = Number(req.query.year);
+    var mes = Number(req.query.mes);
+    var fechaInicial = new Date(year, mes, 1, 0, 0, 0, 0);
+    var fechaFinal = new Date(year, mes, 31, 0, 0, 0, 0);
+    var query = {};
+
+    if (categoria.length > 1) {
+        query = {
+            'categoria': categoria,
+            'fecha': {
+                $gte: fechaInicial,
+                $lte: fechaFinal
+            },
+        };
+    } else {
+        query = {
+            'fecha': {
+                $gte: fechaInicial,
+                $lte: fechaFinal
+            },
+        }
+    }
+
+
+    Gasto.find(query)
+      .skip(desde)
+      .limit(10)
+      .populate("usuarioCreador", "nombre email")
+      .populate("proveedor", "id nombre")
+      .sort("-fecha")
+      .exec((err, gastos) => {
+        if (err) {
+          return res.status(500).json({
+            ok: false,
+            mensaje: "Error cargando gastos",
+            errors: err
+          });
+        }
+
+        Gasto.count(query, (err, conteoGastos) => {
+          if (err) {
+            return res.status(500).json({
+              ok: false,
+              mensaje: "Error al contar gastos",
+              errors: err
+            });
+          }
+
+          res.status(200).json({
+            ok: true,
+            mensaje: "Consulta de gastos realizada exitosamente",
+            gastos: gastos,
+            totalGastos: conteoGastos
+          });
+        });
+      });
+});
+//====================================================================================
+// FIN de Obtener gastos paginadas de 10 en 10 para la tabla del reporte de gastos
+//====================================================================================
+
 //======================================================================
 // Obtener gastos paginados de 10 en 10
 //======================================================================
@@ -82,6 +393,7 @@ app.post('/', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (
       categoria: body.categoria,
       proveedor: body.proveedor,
       pagoCompra: body.pagoCompra,
+      pagoNomina: body.pagoNomina,
     gastoOperativo: body.gastoOperativo
     });
 
@@ -139,6 +451,7 @@ app.put('/:gastoId', mdAutenticacion.verificarToken, mdAutenticacion.validarPerm
             (body.categoria != null) ? gasto.categoria = body.categoria : null;
             (body.proveedor != null) ? gasto.proveedor = body.proveedor : null;
             (body.pagoCompra != null) ? gasto.pagoCompra = body.pagoCompra : null;
+            (body.pagoNomina != null) ? gasto.pagoNomina = body.pagoNomina : null;
             (body.gastoOperativo != null) ? gasto.gastoOperativo = body.gastoOperativo : null;
 
             gasto.save((err, gastoActualizado) => {
@@ -280,5 +593,45 @@ app.delete('/:gastoId', mdAutenticacion.verificarToken, mdAutenticacion.validarP
 // FIN de Eliminar gasto por id
 //======================================================================
 
+
+//==================================================
+// Funciones
+//==================================================
+function calcularGastosMensuales(gastos) {
+    var gastosMensuales = [
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    ];
+
+    gastos.forEach(gasto => {
+        var mes = gasto.fecha.getMonth();
+        var totalGasto = gasto.monto;
+
+        gastosMensuales[mes] += totalGasto;
+
+    });
+
+    return gastosMensuales;
+}
+
+function calcularGastosDiarios(gastos, numDias) {
+    var gastosDiarios = [];
+    var dias = numDias;
+
+    for (i = 0; i <= dias; i++) {
+        gastosDiarios.push(0);
+    }
+
+    gastos.forEach(gasto => {
+        var dia = gasto.fecha.getDate();
+        var totalGasto = gasto.monto;
+
+        gastosDiarios[dia] += totalGasto;
+    });
+
+    return gastosDiarios;
+}
+//==================================================
+// FIN de Funciones
+//==================================================
 
 module.exports = app;
