@@ -30,6 +30,7 @@ var gastoSchema = new Schema({
     categoria: { type: String, required: true, enum: categoriasDeGasto },
     proveedor: { type: Schema.Types.ObjectId, ref: 'Proveedor', required: false },
     pagoCompra: { type: Schema.Types.ObjectId, ref: 'Pago', required: false },
+    pagoNomina: { type: Schema.Types.ObjectId, ref: 'Nomina', required: false },
     gastoOperativo: { type: Boolean, required: true }
 });
 
