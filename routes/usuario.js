@@ -11,6 +11,49 @@ var app = express();
 var Usuario = require("../models/usuario");
 
 
+//=====================================
+// Obtener todos los usuarios
+//=====================================
+app.get("/todosLosUsuarios", mdAutenticacion.verificarToken, (req, res, next) => {
+
+
+  Usuario.find({ 
+    role: { $ne: 'ADMIN_ROLE' },
+    role: { $ne: 'NO_EMPLEADO'} 
+  }, "nombre email img role correo unidadDeNegocio salario")
+    .exec((err, usuarios) => {
+      if (err) {
+        return res.status(500).json({
+          ok: false,
+          mensaje: "Error cargando usuarios.",
+          errors: err
+        });
+      }
+
+      Usuario.count({}, (err, conteoUsuarios) => {
+
+        if (err) {
+          return res.status(500).json({
+            ok: false,
+            mensaje: "Error al contar usuarios",
+            errors: err
+          });
+        }
+
+        res.status(200).json({
+          ok: true,
+          mensaje: "Consulta de usuarios realizada correctamente.",
+          usuarios: usuarios,
+          totalUsuarios: conteoUsuarios
+        });
+
+      });
+
+    });
+});
+//=====================================
+//Fin de Obtener todos los usuarios
+//=====================================
 
 //=====================================
 // Obtener usuarios de 10 en 10
