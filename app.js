@@ -48,6 +48,7 @@ var pagoRoutes = require('./routes/pago');
 var permisosRoutes= require('./routes/permisos');
 var gastoRoutes = require('./routes/gasto');
 var nominaRoutes = require('./routes/nomina');
+var menuRoutes = require('./routes/menu');
 
 //Conexion a base de datos
 mongoose.set("useCreateIndex", true);
@@ -87,6 +88,7 @@ app.use('/pago', pagoRoutes);
 app.use('/permisos', permisosRoutes);
 app.use('/gasto', gastoRoutes);
 app.use('/nomina', nominaRoutes);
+app.use('/menu', menuRoutes);
 app.use('/', appRoutes);
 
 
