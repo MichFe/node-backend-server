@@ -10,6 +10,51 @@ var Compra = require('../models/compra');
 
 
 //======================================================
+// Obtener total de gastos operativos anuales
+//======================================================
+app.get('/gastosOperativosAnuales/:year', mdAutenticacion.verificarToken, (req,res)=>{
+    var year = Number(req.params.year);
+    var fechaInicial = new Date(year, 0, 1, 0, 0, 0, 0);
+    var fechaFinal = new Date(year, 11, 31, 0, 0, 0, 0);
+    var totalGastoOperativo;
+
+    Gasto.aggregate([
+      {
+        $match: {
+          fecha: { $gte: fechaInicial, $lte: fechaFinal },
+          gastoOperativo: { $eq: true }
+        }
+      },
+      {
+        $group: {
+            _id: null,
+            totalGastoOperativo: { $sum: '$monto'}
+        }
+      }      
+    ], (err, totales)=>{
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    mensaje: 'Error al sumar gastos operativos del año: ' + year,
+                    errors: err
+                });
+            }
+
+            ( totales[0] )? totalGastoOperativo = totales[0]: totalGastoOperativo = 0;
+            
+
+            res.status(200).json({
+              ok: true,
+              mensaje: "Consulta del total de gasto operativo exitosa",
+              totalGastoOperativo: totalGastoOperativo.totalGastoOperativo,
+            });
+    });
+});
+//======================================================
+// FIN de Obtener total de gastos operativos anuales
+//======================================================
+
+//======================================================
 // Obtener total de gastos mensuales en un año
 //======================================================
 app.get('/gastosMensuales/:year', mdAutenticacion.verificarToken,  (req, res) => {
