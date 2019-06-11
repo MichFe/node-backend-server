@@ -34,6 +34,7 @@ var productoSchema = new Schema({
     familia: { type: String, required: [true, 'La familia del producto es requerida'], enum: familiasValidas },
     precio: { type: Number, required: [true, "El precio del producto es requerido"] },
     img: { type: String, required: false },
+    cantidad: { type: Number, default: false, required: false },
     tCarpinteria: { type: Number, required: false},
     tPulido1: { type: Number, required: false },
     tFondo: { type: Number, required: false },
