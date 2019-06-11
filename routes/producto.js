@@ -8,6 +8,47 @@ var app = express();
 
 var Producto = require('../models/producto');
 
+//======================================================================
+// Obtener todas las familias y todos los productos por familia
+//======================================================================
+app.get('/familiasYProductos', mdAutenticacion.verificarToken, (req, res)=>{
+    Producto.aggregate(
+      [
+        {
+          $group: {
+            _id: { familia: "$familia" },
+            productos: {
+              $push: {
+                productoId: "$_id",
+                codigo: "$codigo",
+                nombre: "$nombre",
+                cantidad: "$cantidad"
+              }
+            }
+          }
+        }
+      ],
+      (err, familias) => {
+        if (err) {
+          return res.status(500).json({
+            ok: false,
+            mensaje: "Error al consultar familias y productos",
+            errors: err
+          });
+        }
+
+        res.status(200).json({
+          ok: true,
+          mensaje: "Consulta de familias y productos exitosa",
+          familias: familias
+        });
+      }
+    );
+});
+//======================================================================
+// FIN de Obtener todas las familias y todos los productos por familia
+//======================================================================
+
 //========================================================
 // Obtener todos los productos
 //========================================================
@@ -182,11 +223,12 @@ app.put('/:id', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos,
                 });
             }
 
-            producto.codigo = body.codigo;
-            producto.nombre = body.nombre;
-            producto.familia = body.familia;
-            producto.precio = body.precio;
-            producto.usuarioUltimaModificacion = req.usuario._id;
+            ( body.codigo ) ? producto.codigo = body.codigo: null;
+            ( body.nombre ) ? producto.nombre = body.nombre: null;
+            ( body.familia ) ? producto.familia = body.familia: null;
+            ( body.precio ) ? producto.precio = body.precio: null;
+            ( body.cantidad >= 0 ) ? producto.cantidad = body.cantidad: null;
+            ( body.usuarioUltimaModificacion ) ? producto.usuarioUltimaModificacion = req.usuario._id: null;
 
             producto.save((err, productoActualizado) => {
 
