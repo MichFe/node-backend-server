@@ -10,6 +10,96 @@ var app = express();
 
 var Usuario = require("../models/usuario");
 
+//=========================================
+// Cambiar contraseña
+//=========================================
+app.put("/cambiarPassword", mdAutenticacion.verificarToken, (req, res, next)=>{
+  let body = req.body;
+
+  let password = body.password;
+  let id = body._id;
+  let usuarioSolicitante = req.usuario;
+
+  if(usuarioSolicitante._id != body._id && usuarioSolicitante.role != "ADMIN_ROLE"){
+    return res.status(401).json({
+      ok: false,
+      mensaje: "No esta autorizado",
+      errors: { message: "No esta autorizado para cambiar la contraseña de otros usuarios" }
+    });
+  }
+
+  Usuario.findById(id)
+    .exec((err, usuario)=>{
+
+      if(err){
+        return res.status(500).json({
+          ok: false,
+          mensaje: "Error buscar usuario",
+          errors: err
+        });
+      }
+
+      if(!usuario){
+        return res.status(500).json({
+          ok: false,
+          mensaje: "El usuario no existe en la base de datos",
+          errors: { message: "No existe un usuario con ese ID" }
+        });
+      }
+
+      usuario.password = bcrypt.hashSync(password, 10);
+
+      usuario.save((err, usuarioActualizado )=>{
+        
+        if(err){
+          return res.status(500).json({
+            ok: false,
+            mensaje: "Error actualizar usuario",
+            errors: err
+          });
+        }
+
+        res.status(200).json({
+          ok: true,
+          mensaje: "Contraseña actualizada correctamente"
+        });
+      });
+    });
+});
+//=========================================
+// FIN de Cambiar contraseña
+//=========================================
+
+//=========================================
+// Obtener solo empleados
+//=========================================
+app.get("/todosLosEmpleados", mdAutenticacion.verificarToken, (req,res,next)=>{
+  Usuario.find({
+    $and: [
+      { role: { $ne: 'ADMIN_ROLE' } },
+      { role: { $ne: 'NO_EMPLEADO'} }
+    ]
+  }, "nombre email img role correo unidadDeNegocio salario")
+    .exec((err,usuarios)=>{
+
+      if (err) {
+        return res.status(500).json({
+          ok: false,
+          mensaje: "Error cargando empleados.",
+          errors: err
+        });
+      }
+
+      res.status(200).json({
+        ok: true,
+        mensaje: "Consulta de empleados exitosa",
+        usuarios: usuarios
+      });
+    });
+});
+//=========================================
+// Obtener solo empleados
+//=========================================
 
 //=====================================
 // Obtener todos los usuarios
@@ -18,8 +108,10 @@ app.get("/todosLosUsuarios", mdAutenticacion.verificarToken, (req, res, next) =>
 
 
   Usuario.find({ 
-    role: { $ne: 'ADMIN_ROLE' },
-    role: { $ne: 'NO_EMPLEADO'} 
+    $and:[
+      { role: { $ne: 'ADMIN_ROLE' } },
+      // { role: { $ne: 'NO_EMPLEADO'} } 
+    ]
   }, "nombre email img role correo unidadDeNegocio salario")
     .exec((err, usuarios) => {
       if (err) {
@@ -132,7 +224,7 @@ app.get("/", mdAutenticacion.verificarToken, (req, res, next) => {
         ( body.email != null && body.email!='' )?(usuario.email = body.email):null;
         ( body.role != null && body.role!='' )?(usuario.role = body.role):null;
         ( body.unidadDeNegocio != null && body.unidadDeNegocio!='' )?usuario.unidadDeNegocio = body.unidadDeNegocio:null;
-
+        ( body.salario != null && body.salario !='' )? usuario.salario = body.salario :null;
 
         usuario.save((err, usuarioGuardado) => {
           if (err) {
