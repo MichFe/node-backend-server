@@ -50,14 +50,12 @@ app.get("/rango/:dia/:mes/:year", mdAutenticacion.verificarToken, (req, res) => 
     
 
     Nomina.find({ 
-        'fechaInicial': {
-            $lte: fecha
-        },
-        'fechaFinal':{
-            $gte: fecha
-        }
+        $and: [
+            { fechaInicial: { $lte: fecha } },
+            { fechaFinal: { $gte: fecha } }
+        ]
     })
-        .exec((err, nominas) => {
+        .exec((err, nominas) => {            
 
             if (err) {
                 return res.status(500).json({
@@ -66,6 +64,8 @@ app.get("/rango/:dia/:mes/:year", mdAutenticacion.verificarToken, (req, res) => 
                     errors: err
                 });
             }
+
+            
 
             if(nominas.length<=0){
                 return res.status(400).json({
