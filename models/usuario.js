@@ -5,12 +5,12 @@ var Schema = mongoose.Schema;
 
 //Roles de usuarios
 var rolesValidos = {
-    values:[
-        'ADMIN_ROLE',
-        'USER_ROLE',
-        'AGENTE_VENTAS_ROLE'
-    ],
-    message:'{VALUE} no es un rol válido'
+  values: [
+    "ADMIN_ROLE",
+    "EMPLEADO",
+    "NO_EMPLEADO"
+  ],
+  message: "{VALUE} no es un rol válido"
 };
 
 var unidadesDeNegocio = {
