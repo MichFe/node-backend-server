@@ -12,7 +12,7 @@ app.get("/:dia/:mes/:year", mdAutenticacion.verificarToken, (req, res)=>{
     let dia = Number(req.params.dia);
     let mes = Number(req.params.mes);
     let year = Number(req.params.year);
-    var fechaInicial = new Date(year, mes, dia);
+    var fechaInicial = new Date(year, mes, dia, 5);
     
 
     Nomina.find({ fechaInicial: fechaInicial })
@@ -47,8 +47,8 @@ app.get("/rango/:dia/:mes/:year", mdAutenticacion.verificarToken, (req, res) => 
     let mes = Number(req.params.mes);
     let year = Number(req.params.year);
 
+    //Agregamos la hora para hacer match a las 5 horas de diferencia con el server
     var fecha = new Date( year, mes, dia, 5);
-    console.log(`Fecha de get rango: ${ fecha }`);
     
     Nomina.find({ 
         $and: [
