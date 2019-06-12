@@ -47,7 +47,7 @@ app.get("/rango/:dia/:mes/:year", mdAutenticacion.verificarToken, (req, res) => 
     let mes = Number(req.params.mes);
     let year = Number(req.params.year);
 
-    var fecha = new Date( year, mes, dia);
+    var fecha = new Date( year, mes, dia, 5);
     console.log(`Fecha de get rango: ${ fecha }`);
     
     Nomina.find({ 
