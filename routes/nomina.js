@@ -14,6 +14,9 @@ app.get("/:dia/:mes/:year", mdAutenticacion.verificarToken, (req, res)=>{
     let year = Number(req.params.year);
     var fechaInicial = new Date(year, mes, dia);
 
+    console.log(`Fecha funcionando correctamente ${ fechaInicial }`);
+    
+
     Nomina.find({ fechaInicial: fechaInicial })
         .exec((err, nominas)=>{
 
@@ -48,8 +51,6 @@ app.get("/rango/:dia/:mes/:year", mdAutenticacion.verificarToken, (req, res) => 
 
     var fecha = new Date( year, mes, dia);
     
-    console.log(fecha);
-    
     Nomina.find({ 
         $and: [
             { 'fechaInicial': { '$lte': fecha } },
@@ -57,9 +58,7 @@ app.get("/rango/:dia/:mes/:year", mdAutenticacion.verificarToken, (req, res) => 
         ]
     })
         .exec((err, nominas) => {   
-            
-            console.log(nominas);
-            
+                        
 
             if (err) {
                 return res.status(500).json({
