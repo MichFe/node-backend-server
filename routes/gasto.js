@@ -499,6 +499,9 @@ app.put('/:gastoId', mdAutenticacion.verificarToken, mdAutenticacion.validarPerm
             (body.pagoNomina != null) ? gasto.pagoNomina = body.pagoNomina : null;
             (body.gastoOperativo != null) ? gasto.gastoOperativo = body.gastoOperativo : null;
 
+            //Condicional para eliminar proveedor desde edición de gasto
+            (body.proveedor == 'ninguno') ? gasto.proveedor = null : null;
+
             gasto.save((err, gastoActualizado) => {
 
                 if (err) {
