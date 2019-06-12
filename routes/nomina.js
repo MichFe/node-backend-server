@@ -48,14 +48,13 @@ app.get("/rango/:dia/:mes/:year", mdAutenticacion.verificarToken, (req, res) => 
 
     var fecha = new Date( year, mes, dia);
     
-
     Nomina.find({ 
         $and: [
-            { fechaInicial: { $lte: fecha } },
-            { fechaFinal: { $gte: fecha } }
+            { 'fechaInicial': { '$lte': fecha } },
+            { 'fechaFinal': { '$gte': fecha } }
         ]
     })
-        .exec((err, nominas) => {            
+        .exec((err, nominas) => {   
 
             if (err) {
                 return res.status(500).json({
