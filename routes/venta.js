@@ -49,7 +49,7 @@ app.get('/ventaPorId/:ventaId', mdAutenticacion.verificarToken, mdAutenticacion.
 app.get('/descuentosAnuales/:year', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req,res)=>{
     var year = Number(req.params.year);
     var fechaInicial = new Date(year, 0, 1, 0, 0, 0, 0);
-    var fechaFinal = new Date(year, 11, 31, 0, 0, 0, 0);
+    var fechaFinal = new Date(year, 11, 31, 23, 59, 59, 999);
 
     var unidadDeNegocio = req.query.unidadDeNegocio;
     var query = {};
@@ -122,7 +122,7 @@ app.get('/tablaVentas', mdAutenticacion.verificarToken, mdAutenticacion.validarP
     var year = Number(req.query.year);
     var mes = Number(req.query.mes);
     var fechaInicial = new Date(year, mes, 1, 0, 0, 0, 0);
-    var fechaFinal = new Date(year, mes, 31, 0, 0, 0, 0);
+    var fechaFinal = new Date(year, mes, 31, 23, 59, 59, 999);
     var query={};
 
     if(unidadDeNegocio.length>1){
@@ -242,7 +242,7 @@ app.get('/saldoPendiente/todosLosTiempos', mdAutenticacion.verificarToken, mdAut
 app.get('/saldoPendiente/:year', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, ( req, res )=>{
     var year=Number(req.params.year);
     var fechaInicial = new Date(year, 0, 1, 0, 0, 0, 0);
-    var fechaFinal = new Date(year, 11, 31, 0, 0, 0, 0);
+    var fechaFinal = new Date(year, 11, 31, 23, 59, 59, 999);
     var totalSaldoPendiente;
     var totalMontoPagado;
     var unidadDeNegocio = req.query.unidadDeNegocio;
@@ -338,7 +338,7 @@ app.get('/saldoPendiente/:year', mdAutenticacion.verificarToken, mdAutenticacion
 app.get('/ventasMensuales/:year', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req, res)=>{
     var year=Number(req.params.year);
     var fechaInicial = new Date(year, 0, 1, 0, 0, 0, 0);
-    var fechaFinal = new Date( year, 11, 31, 0, 0 ,0 , 0 );
+    var fechaFinal = new Date( year, 11, 31, 23, 59 ,59 , 999 );
     
     var unidadDeNegocio = req.query.unidadDeNegocio;
     var query = {};
@@ -407,8 +407,8 @@ app.get('/ventasMensuales/:year', mdAutenticacion.verificarToken, mdAutenticacio
 app.get('/ventasDiarias/:year/:mes', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req ,res)=>{
     var mes=Number(req.params.mes);
     var year=Number(req.params.year);
-    var fechaInicial = new Date(year, mes, 1);
-    var fechaFinal = new Date(year, mes + 1, 0 );
+    var fechaInicial = new Date(year, mes, 1, 0, 0, 0, 0);
+    var fechaFinal = new Date(year, mes + 1, 0, 23, 59, 59, 999);
 
     var unidadDeNegocio=req.query.unidadDeNegocio;
     var query={};
