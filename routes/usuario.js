@@ -112,7 +112,7 @@ app.get("/todosLosUsuarios", mdAutenticacion.verificarToken, (req, res, next) =>
       { role: { $ne: 'ADMIN_ROLE' } },
       // { role: { $ne: 'NO_EMPLEADO'} } 
     ]
-  }, "nombre email img role correo unidadDeNegocio salario")
+  }, "nombre email img role correo unidadDeNegocio salario blacklist")
     .exec((err, usuarios) => {
       if (err) {
         return res.status(500).json({
@@ -225,7 +225,8 @@ app.get("/", mdAutenticacion.verificarToken, (req, res, next) => {
         ( body.role != null && body.role!='' )?(usuario.role = body.role):null;
         ( body.unidadDeNegocio != null && body.unidadDeNegocio!='' )?usuario.unidadDeNegocio = body.unidadDeNegocio:null;
         ( body.salario != null && body.salario !='' )? usuario.salario = body.salario :null;
-
+        ( body.blacklist != null )? usuario.blacklist = body.blacklist : null;
+    
         usuario.save((err, usuarioGuardado) => {
           if (err) {
             return res
@@ -262,10 +263,11 @@ app.post('/', mdAutenticacion.verificarToken, (req, res, next) =>{
     var usuario = new Usuario({
       nombre: body.nombre,
       email: body.email,
-      password: bcrypt.hashSync( body.password, 10 ),
+      password: bcrypt.hashSync(body.password, 10),
       img: body.img,
       role: body.role,
-      unidadDeNegocio: body.unidadDeNegocio
+      unidadDeNegocio: body.unidadDeNegocio,
+      salario: body.salario
     });
 
     usuario.save( ( err, usuarioGuardado )=>{

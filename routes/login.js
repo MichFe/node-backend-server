@@ -36,6 +36,14 @@ app.post('/', (req, res, next) =>{
             });
         }
 
+        if( usuarioDB.blacklist ){
+            return res.status(401).json({
+                ok:false,
+                mensaje: 'Usuario desactivado',
+                errors: { message: 'Su usuario ha sido desactivado' }
+            });
+        }
+
         usuarioDB.password='PRIVATE';
 
         //Crear un token
