@@ -19,7 +19,7 @@ exports.verificarToken = function( req, res, next){
         }
 
         req.usuario = decoded.usuario;
-    
+        
         next();
     
     });
