@@ -139,6 +139,9 @@ app.put('/:id', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos,
     var id = req.params.id;
     var body = req.body;
 
+    var fecha = new Date (body.fecha);        
+    
+
     Cotizacion.findById(id)
         .exec((err,cotizacion)=>{
 
@@ -159,7 +162,7 @@ app.put('/:id', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos,
             }
 
             //Valores a actualizar
-            ( body.fecha != null ) ? cotizacion.fecha = body.fecha : null;
+            ( body.fecha != null ) ? cotizacion.fecha = fecha : null;
             ( body.productos != null ) ? cotizacion.productos = body.productos : null;
             ( body.subtotal != null ) ? cotizacion.subtotal = body.subtotal : null;
             ( body.descuento != null ) ? cotizacion.descuento = body.descuento : null;
