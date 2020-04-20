@@ -113,6 +113,39 @@ app.get('/descuentosAnuales/:year', mdAutenticacion.verificarToken, mdAutenticac
 //======================================================
 
 //======================================================
+// Obtener Ventas Por Cliente
+//======================================================
+app.get('/ventasPorCliente/:idCliente', mdAutenticacion.verificarToken, (req, res)=>{
+    var idCliente = req.params.idCliente;
+    let query = {
+        cliente: idCliente
+    };
+
+    Venta.find(query)
+        .sort("-fecha")
+        .populate("cliente", "id nombre")
+        .exec((err, ventasCliente)=>{
+            if (err) {
+                return res.status(500).json({
+                        ok: false,
+                        mensaje: "Error cargando ventas",
+                        errors: err
+                    });
+            }
+
+            res.status(200).json({
+                ok: true,
+                mensaje: "Consulta de ventas realizada exitosamente",
+                ventasCliente: ventasCliente,
+            });
+        });
+
+});
+//======================================================
+// FIN de Obtener Ventas Por Cliente
+//======================================================
+
+//======================================================
 // Obtener ventas paginadas de 10 en 10
 //======================================================
 app.get('/tablaVentas', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req, res) => {
