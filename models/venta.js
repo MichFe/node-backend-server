@@ -16,7 +16,8 @@ var unidadesDeNegocio = {
         'Tienda León',
         'Tienda Guadalajara',
         'Expo GDL',
-        'Expo CDMX'
+        'Expo CDMX',
+        'Imbra'
     ],
     message: '{VALUE} no es una unidad de negocio válida'
 };

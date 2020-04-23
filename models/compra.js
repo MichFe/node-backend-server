@@ -6,7 +6,8 @@ var unidadesDeNegocio = {
     values: [
         'Fabrica',
         'Tienda León',
-        'Tienda Guadalajara'
+        'Tienda Guadalajara',
+        'Imbra'
     ],
     message: '{VALUE} no es una unidad de negocio válida'
 };
