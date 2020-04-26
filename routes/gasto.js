@@ -363,6 +363,51 @@ app.get('/tablaGastos', mdAutenticacion.verificarToken, (req, res) => {
 // FIN de Obtener gastos paginadas de 10 en 10 para la tabla del reporte de gastos
 //====================================================================================
 
+//=============================================================
+// Obtener gastos registrados por un usuario
+//=============================================================
+app.get('/gastosPorUsuario/:idUsuario', mdAutenticacion.verificarToken, (req,res)=>{
+    let idUsuario = req.params.idUsuario;
+    let query = {
+      usuarioCreador: idUsuario
+    };
+
+    Gasto.find(query)
+        .sort('-fecha')
+        .populate("usuarioCreador", "nombre")
+        .populate("proveedor", "nombre")
+        .exec((err,gastos)=>{
+
+            if (err) {
+          return res.status(500).json({
+            ok: false,
+            mensaje: "Error al buscar gastos",
+            errors: err
+          });
+        }
+
+        if (!gastos) {
+          return res.status.json({
+            ok: false,
+            mensaje: "No hay gastos registrados",
+            errors: { 
+                message:
+                    "No hay gastos registrados"
+            }
+          });
+        }
+
+        res.status(200).json({
+                ok: true,
+                mensaje: "Consulta de gastos exitosa",
+                gastosUsuario: gastos,
+            });
+        });
+});
+//=============================================================
+// Fin de Obtener gastos registrados por un usuario
+//=============================================================
+
 //======================================================================
 // Obtener gastos paginados de 10 en 10
 //======================================================================
