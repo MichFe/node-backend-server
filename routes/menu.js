@@ -15,7 +15,7 @@ app.get('/:userId', mdAutenticacion.verificarToken, (req, res) => {
     var id = req.params.userId;
 
     Menu.find({ usuario: id })
-        .populate('usuario', 'nombre')
+        .populate('usuario', 'nombre role')
         .exec((err, menu) => {
 
             if (err) {
@@ -33,7 +33,9 @@ app.get('/:userId', mdAutenticacion.verificarToken, (req, res) => {
                     errors: { message: 'No existen menu registrados en la base de datos para ese usuario' }
                 });
             }
-
+                       
+            let menuFinal = validarMenuVsDefaultMenu(menu[0].menu, menu[0].usuario.role);
+            menu[0].menu = menuFinal.slice();
             res.status(200).json({
                 ok: true,
                 mensaje: 'Consulta de menu exitosa',
@@ -172,6 +174,108 @@ app.put('/:userId', mdAutenticacion.verificarToken, (req, res) => {
 //===============================================
 // FIN de Actualizar menu de usuario
 //===============================================
+
+//Funciones
+function validarMenuVsDefaultMenu(menuAnterior,userRole){
+    
+    let menuEstandar = menuDefault.slice();
+    let xMenuEstandar = 0;
+    let iMenuAnterior = 0;
+    let nombreMenuAnterior;
+    let nombreMenuEstandar;
+
+   //Validando menus
+    while( xMenuEstandar < menuEstandar.length ){
+        nombreMenuEstandar = menuEstandar[xMenuEstandar].modulo;
+        iMenuAnterior=0;
+        while (iMenuAnterior < menuAnterior.length){
+            nombreMenuAnterior = menuAnterior[iMenuAnterior].modulo;
+            
+            if(nombreMenuAnterior==nombreMenuEstandar){
+                menuEstandar[xMenuEstandar].show = menuAnterior[iMenuAnterior].show;
+                iMenuAnterior= menuAnterior.length;
+                
+            }else{
+                iMenuAnterior+=1;
+            }
+        }
+
+        xMenuEstandar+=1;
+
+    }
+
+    //Validando submenus
+    let yMenuEstandar = 0;
+    let jMenuAnterior = 0;
+    let nombreSubmenuEstandar;
+    let nombreSubmenuAnterior;
+    let match = false;
+    xMenuEstandar = 0;
+    iMenuAnterior = 0;
+
+    while( xMenuEstandar < menuEstandar.length){
+        
+        
+        
+        //Verificamos si hay submenus
+        if( menuEstandar[xMenuEstandar].submenu){
+            yMenuEstandar=0;
+            while( yMenuEstandar < menuEstandar[xMenuEstandar].submenu.length){
+                
+                nombreSubmenuEstandar = menuEstandar[xMenuEstandar].submenu[yMenuEstandar].titulo;
+                
+                iMenuAnterior=0;
+                match=false;
+                //Corremos loop en menu anterior
+                while( iMenuAnterior < menuAnterior.length ){
+                    
+                    //Verificamos si hay submenus
+                    if( menuAnterior[iMenuAnterior].submenu.length>0 ){
+                        jMenuAnterior=0;
+                        while( jMenuAnterior < menuAnterior[iMenuAnterior].submenu.length ){
+                            
+                            nombreSubmenuAnterior = menuAnterior[iMenuAnterior].submenu[jMenuAnterior].titulo;
+                            
+                            if( nombreSubmenuAnterior == nombreSubmenuEstandar){
+                                menuEstandar[xMenuEstandar].submenu[yMenuEstandar].show = menuAnterior[iMenuAnterior].submenu[jMenuAnterior].show;
+                                jMenuAnterior = menuAnterior[iMenuAnterior].submenu.length;
+                                match = true;
+                            }else{
+                                jMenuAnterior+=1;
+                            }
+
+                        }
+                        
+                    }
+                    if (match) {
+                        iMenuAnterior=menuAnterior.length;
+                    }else{
+                        iMenuAnterior+=1;
+                    }
+                }
+                
+                if (!match && menuEstandar[xMenuEstandar].submenu.length > 0){
+                    
+                    menuEstandar[xMenuEstandar].submenu[yMenuEstandar].show = false;
+                }
+
+                if (userRole == 'ADMIN_ROLE'){
+                    menuEstandar[xMenuEstandar].submenu[yMenuEstandar].show = true;
+                }
+
+                yMenuEstandar+=1;
+
+            }
+            
+        }
+        xMenuEstandar+=1;
+        
+    }
+
+
+    return menuEstandar;
+
+}
 
 
 module.exports = app;
