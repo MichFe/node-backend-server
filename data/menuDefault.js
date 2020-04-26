@@ -40,7 +40,8 @@ module.exports.MENU_DEFAULT = [
     show: false,
     submenu: [
       { titulo: "Registro de gastos", url: "/gastos", show: false },
-      { titulo: "Reporte de gastos", url: "/reporteDeGastos", show: false }
+      { titulo: "Reporte de gastos", url: "/reporteDeGastos", show: false },
+      { titulo: "Proveedores", url: "/proveedores", show: false }
     ]
   },
   {
@@ -116,7 +117,9 @@ module.exports.MENU_DEFAULT_ADMIN = [
         show: true,
         submenu: [
             { titulo: "Registro de gastos", url: "/gastos", show: true },
-            { titulo: "Reporte de gastos", url: "/reporteDeGastos", show: true }
+            { titulo: "Reporte de gastos", url: "/reporteDeGastos", show: true },
+            { titulo: "Proveedores", url: "/proveedores", show: true }
+
         ]
     },
     {
