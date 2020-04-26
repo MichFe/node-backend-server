@@ -7,6 +7,7 @@ var app=express();
 var Cliente = require('../models/cliente');
 var Producto = require('../models/producto');
 var Proveedor = require('../models/proveedor');
+var Usuario = require('../models/usuario');
 
 
 app.get('/coleccion/:tabla/:busqueda', mdAutenticacion.verificarToken,(req,res)=>{
@@ -35,6 +36,10 @@ app.get('/coleccion/:tabla/:busqueda', mdAutenticacion.verificarToken,(req,res)=
             promesa = buscarProveedor(regex);
             break;
 
+        case 'usuario':
+            promesa= buscarUsuario(regex);
+            break;
+
         default:
             return res.status(400).json({
                 ok: false,
@@ -61,6 +66,22 @@ app.get('/coleccion/:tabla/:busqueda', mdAutenticacion.verificarToken,(req,res)=
 
 
 });
+
+function buscarUsuario(regex) {
+
+    return new Promise((resolve, reject) => {
+
+        Usuario.find({ nombre: regex }, (err, usuarios) => {
+            if (err) {
+                reject('Error al buscar usuario', err);
+            } else {
+                resolve(usuarios);
+            }
+        });
+
+    });
+
+}
 
 function buscarCliente( busqueda, regex ){
 
