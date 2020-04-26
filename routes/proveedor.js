@@ -5,6 +5,43 @@ var app = express();
 
 var Proveedor = require('../models/proveedor');
 
+//=========================================
+// Obtener todos los proveedores
+//=========================================
+app.get('/todosLosProveedores',mdAutenticacion.verificarToken,(req,res)=>{
+
+    Proveedor.find({})
+        .sort('nombre')
+        .exec((err, proveedores)=>{
+
+            if (err) {
+              return res.status(500).json({
+                ok: false,
+                mensaje: "Error al buscar proveedores",
+                errors: err
+              });
+            }
+
+            if (!proveedores) {
+                return res.status(400).json({
+                    ok: false,
+                    mensaje: 'No hay proveedores registrados',
+                    errors: { message: 'No existen proveedores registrados en la base de datos' }
+                });
+            }
+
+            res.status(200).json({
+                ok: true,
+                mensaje: 'Consulta de proveedores exitosa',
+                proveedores: proveedores
+            });
+        });
+
+});
+//=========================================
+// FIN de Obtener todos los proveedores
+//=========================================
+
 //===============================================
 // Obtener proveedores de 10 en 10
 //===============================================
