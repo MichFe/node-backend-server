@@ -117,7 +117,7 @@ var urls = {
     "/venta/saldoPendiente/todosLosTiempos",
     "/venta/ventasConSaldo/:clienteId",
     "/cobro/:idVenta",
-    "/aprobadas",
+    "/requisicion/aprobadas",
     "/compra/proveedoresConSaldo",
     "/compra/saldoPendiente/todosLosTiempos",
     "/compra/comprasConSaldo/:proveedorId",
