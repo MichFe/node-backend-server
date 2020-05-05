@@ -66,13 +66,12 @@ exports.validarPermisos = function (req, res, next) {
                         errors: { message: 'Contacte con un administrador para que configure sus permisos' }
                     });
                 }   
-                
-                
 
                 var permiso = permisos[0].permisos.filter((permisoOfPermisos) => {
                     return (permisoOfPermisos.url === url && permisoOfPermisos.method === method);
                 });    
-                            
+                           
+                
                 permiso=permiso[0];
 
                 if(!permiso){
