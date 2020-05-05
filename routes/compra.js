@@ -7,6 +7,7 @@ var Compra = require('../models/compra');
 var Proveedor = require('../models/proveedor');
 var Pago = require('../models/pago');
 var Requisicion = require('../models/requisicion');
+var Gasto = require('../models/gasto');
 
 //========================================================================================
 // Obtener total de compras pagadas y total de saldo pendiente de todos los tiempos
@@ -434,6 +435,35 @@ app.delete('/:id', mdAutenticacion.verificarToken, mdAutenticacion.validarPermis
             });
         }
 
+        //Eliminar Gastos de la compra
+        Pago.find({ compra: compraEliminada._id })
+            .exec((err,pagosDeLaCompra)=>{
+
+                if (err) {
+                  return res.status(500).json({
+                    ok: false,
+                    mensaje: "Error al consultar los pagos de esta compra",
+                    errors: err
+                  });
+                }
+
+                pagosDeLaCompra.forEach((pago)=>{
+                    
+                    Gasto.deleteMany({ pagoCompra: pago._id })
+                        .exec((err, gastosEliminados) => {
+                            if (err) {
+                                return res.status(500).json({
+                                    ok: false,
+                                    mensaje: 'Error al eliminar los gastos de esta compra',
+                                    errors: err
+                                });
+                            }
+
+                        });
+                    
+                });
+            });
+       
         //Agregamos metodo para eliminar pagos de la compra
         Pago.deleteMany({ compra: compraEliminada._id })
             .exec((err,pagosEliminados)=>{
