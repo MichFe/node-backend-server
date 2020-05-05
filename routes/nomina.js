@@ -48,7 +48,7 @@ app.get("/rango/:dia/:mes/:year", mdAutenticacion.verificarToken, (req, res) => 
     let year = Number(req.params.year);
 
     //Agregamos la hora para hacer match a las 5 horas de diferencia con el server
-    var fecha = new Date( year, mes, dia);
+    var fecha = new Date( year, mes, dia, 5);    
     
     
     Nomina.find({ 
