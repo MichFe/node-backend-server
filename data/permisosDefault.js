@@ -255,7 +255,7 @@ module.exports.PERMISOS_DEFAULT = [
     modulo: "Compras",
     permiso: "Ver requisiciones aprobadas",
     enabled: false,
-    url: "/aprobadas",
+    url: "requisicion/aprobadas",
     method: "GET"
   },
   {
