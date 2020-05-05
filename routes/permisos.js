@@ -119,11 +119,22 @@ app.put('/:userId', mdAutenticacion.verificarToken, mdAutenticacion.validarPermi
             });
         }
         permisos = permisos[0];
+        
+
+        //Revisando rutas de la plantilla default en los permisos guardados
+        body.permisos.forEach((permiso)=>{
+            permisosDefault.forEach((permisoDefault)=>{
+                if(permisoDefault.url != permiso.url && permisoDefault.permiso == permiso.permiso){
+                    permiso.url=permisoDefault.url;
+                }
+            });
+        });        
+
         //Propiedades a actualizar
         (body.usuario) ? permisos.usuario = body.usuario : null;
         (body.permisos) ? permisos.permisos = body.permisos : null;
         permisos.fechaUltimaModificacion = new Date();
-        permisos.usuarioUltimaModificacion = req.usuario._id;
+        permisos.usuarioUltimaModificacion = req.usuario._id;        
 
         permisos.save((err, permisosActualizados) => {
 
