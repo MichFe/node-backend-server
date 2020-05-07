@@ -1,4 +1,5 @@
 var express = require('express');
+var mongoose = require("mongoose");
 var mdAutenticacion = require('../middlewares/autenticacion');
 
 var app = express();
@@ -8,6 +9,88 @@ var Pago = require('../models/pago');
 var Compra = require('../models/compra');
 
 
+//======================================================
+// Obtener monto total de gastos por proveedor
+//======================================================
+app.get('/totalGastoProveedor/:id',mdAutenticacion.verificarToken, (req,res)=>{
+    let proveedorId = req.params.id;
+    var total;
+
+    Gasto.aggregate([
+      {
+        $match: {
+              proveedor: mongoose.Types.ObjectId(proveedorId)
+        }
+      },
+      {
+          $group:{
+              _id: null,
+              totalGastosProveedor: { $sum: '$monto' }
+          }
+      }
+    ], (err, totalGastosProveedor)=>{
+
+        if(err){
+            return res.status(500).json({
+                ok: false,
+                mensaje: 'Error al sumar gastos del proveedor',
+                errors: err
+            });
+        }
+
+            if (totalGastosProveedor[0]) {
+                total = totalGastosProveedor[0].totalGastosProveedor;
+            } else {
+                total = 0;
+            }
+
+            res.status(200).json({
+                ok: true,
+                mensaje: 'Consulta de total de compras realizada exitosamente',
+                totalGastosProveedor: total,
+            });
+    });
+});
+//======================================================
+// FIN de Obtener monto total de gastos por proveedor
+//======================================================
+
+//======================================================
+// Obtener gastos de un Proveedor de 10 en 10
+//======================================================
+app.get('/gastosPorProveedor/:id', mdAutenticacion.verificarToken, (req,res)=>{
+    var proveedorId = req.params.id;
+    let desde = Number(req.query.desde);
+    var query ={
+        proveedor: proveedorId
+    };
+
+    Gasto.find(query)
+        .skip(desde)
+        .limit(10)
+        .sort("-fecha")
+        .populate("proveedor", "nombre")
+        .populate("usuarioCreador", "nombre")
+        .exec((err,gastosProveedor)=>{
+
+            if(err){
+                return res.status(500).json({
+                    ok: false,
+                    mensaje: 'Error al sumar consultar gastos del proveedor',
+                    errors: err
+                });
+            }
+
+            res.status(200).json({
+                ok: true,
+                mensaje: 'Consulta de gastos realizada exitosamente',
+                gastosProveedor: gastosProveedor,
+            });
+        });
+});
+//======================================================
+// FIN de Obtener gastos de un Proveedor de 10 en 10
+//======================================================
 
 //======================================================
 // Obtener total de gastos operativos anuales
