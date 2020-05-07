@@ -4,6 +4,7 @@ var mdAutenticacion = require("../middlewares/autenticacion");
 var app = express();
 
 var Nomina = require("../models/nomina");
+var Gasto = require("../models/gasto");
 
 //=============================================
 // Obtener nomina por fecha inicial
@@ -254,11 +255,30 @@ app.delete('/:idNomina', mdAutenticacion.verificarToken, (req, res)=>{
                 });
             }
 
-            res.status(200).json({
-                ok: true,
-                mensaje: 'Nomina eliminada exitosamente',
-                nomina: nominaEliminada
+            //Eliminamos Los gastos asociados a dicha nomina
+            Gasto.find({
+                pagoNomina: nominaEliminada._id
+            }).exec((err, gastosNomina)=>{
+                if(err){
+                    return res.status(500).json({
+                      ok: false,
+                      mensaje: "Error al eliminar nómina",
+                      errors: err
+                    });
+                }
+
+                    gastosNomina.forEach((gasto)=>{
+                        Gasto.findByIdAndDelete(gasto._id, (err,gastoeliminado)=>{});
+                    });
+
+                res.status(200).json({
+                    ok: true,
+                    mensaje: 'Nomina eliminada exitosamente',
+                    nomina: nominaEliminada
+                });
             });
+
+            
         });
 });
 //===============================================
