@@ -1,7 +1,10 @@
 var express = require('express');
+var mongoose = require("mongoose");
 var mdAutenticacion = require('../middlewares/autenticacion');
 
 var app = express();
+
+
 
 var Compra = require('../models/compra');
 var Proveedor = require('../models/proveedor');
@@ -303,6 +306,90 @@ app.get('/', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (r
 //===============================================
 // FIN de Obtener compras de 10 en 10
 //===============================================
+
+//======================================================
+// Obtener compras de un proveedor de 10 en 10
+//======================================================
+app.get('/comprasProveedor/:id', mdAutenticacion.verificarToken, (req,res)=>{
+    let proveedorId = req.params.id;
+    let desde = Number(req.query.desde);
+    let query = {
+        proveedor: proveedorId
+    };
+
+    Compra.find(query)
+        .skip(desde)
+        .limit(10)
+        .sort("-fechaCompra")
+        .populate("proveedor", "nombre")
+        .populate("usuarioCreador", "nombre")
+        .exec((err,comprasProveedor)=>{
+
+            if(err){
+                return res.status(500).json({
+                    ok: false,
+                    mensaje: 'Error al consultar compras de este proveedor',
+                    errors: err
+                });
+            }
+
+            res.status(200).json({
+                ok: true,
+                mensaje: 'Consulta de compras por proveedor exitosa',
+                compras: comprasProveedor
+            });
+        });        
+});
+//======================================================
+// FIN de Obtener compras de un proveedor de 10 en 10
+//======================================================
+
+//========================================================
+// Obtener monto total de compras a un proveedor 
+//========================================================
+app.get('/totalComprasAUnProveedor/:id',mdAutenticacion.verificarToken, (req, res)=>{
+    let proveedorId = req.params.id;
+    var total;
+
+    Compra.aggregate([
+        {
+            $match:{
+                proveedor: mongoose.Types.ObjectId(proveedorId)
+            }
+        },
+        {
+            $group:{
+                _id: null,
+                totalComprasProveedor: { $sum: '$costoTotal' }
+            }
+        }
+    ],(err, totalComprasProveedor)=>{
+        
+        if(err){
+            return res.status(500).json({
+                ok: false,
+                mensaje: 'Error al sumar compras del proveedor',
+                errors: err
+            });
+        }
+        
+
+            if (totalComprasProveedor[0]) {
+                total = totalComprasProveedor[0].totalComprasProveedor;
+            } else {
+                total = 0;
+            }
+
+            res.status(200).json({
+                ok: true,
+                mensaje: 'Consulta de total de compras realizada exitosamente',
+                totalComprasProveedor: total,
+            });
+    });
+});
+//========================================================
+// FIN de Obtener monto total de compras a un proveedor 
+//========================================================
 
 //===============================================
 // Crear una nueva compra 
