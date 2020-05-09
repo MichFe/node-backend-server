@@ -79,7 +79,7 @@ app.get("/todosLosEmpleados", mdAutenticacion.verificarToken, (req,res,next)=>{
       { role: { $ne: 'ADMIN_ROLE' } },
       { role: { $ne: 'NO_EMPLEADO'} }
     ]
-  }, "nombre email img role correo unidadDeNegocio salario")
+  }, "nombre email img role correo unidadDeNegocio salario blacklist")
     .exec((err,usuarios)=>{
 
       if (err) {
