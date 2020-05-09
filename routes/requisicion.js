@@ -138,23 +138,25 @@ app.get('/', mdAutenticacion.verificarToken,(req, res) => {
               });
           }
 
-          Requisicion.countDocuments({}, (err, conteoRequisiciones)=>{
-
-              if( err ){
-                  return res.status(500).json({
-                      ok: false,
-                      mensaje: "Error al contar requisiciones",
-                      errors: err
-                  });
+          Requisicion.countDocuments(
+            query,
+            (err, conteoRequisiciones) => {
+              if (err) {
+                return res.status(500).json({
+                  ok: false,
+                  mensaje: "Error al contar requisiciones",
+                  errors: err
+                });
               }
 
               res.status(200).json({
-                  ok: true,
-                  mensaje: "Consulta de requisiciones realizada exitosamente",
-                  requisiciones: requisiciones,
-                  totalReqisiciones: conteoRequisiciones
+                ok: true,
+                mensaje: "Consulta de requisiciones realizada exitosamente",
+                requisiciones: requisiciones,
+                totalReqisiciones: conteoRequisiciones
               });
-          });
+            }
+          );
       });
 
 
