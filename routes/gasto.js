@@ -567,7 +567,7 @@ app.post('/', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (
       proveedor: body.proveedor,
       pagoCompra: body.pagoCompra,
       pagoNomina: body.pagoNomina,
-    gastoOperativo: body.gastoOperativo
+     gastoOperativo: body.gastoOperativo
     });
 
     gasto.save((err, gastoGuardado) => {

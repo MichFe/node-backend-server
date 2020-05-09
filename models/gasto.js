@@ -7,6 +7,7 @@ var categoriasDeGasto = {
         "Proveedores Productos",
         "Proveedores Materia Prima",
         "Proveedores Maquila",
+        "Consumibles",
         "Nómina",
         "Otros",
         "Fletes",
@@ -17,7 +18,7 @@ var categoriasDeGasto = {
         "Transporte",
         "Maquinaria/Equipo",
         "Mantenimiento",
-        "Renta/Servicios"
+        "Servicios/Rentas"
     ],
     message: '{VALUE} no es una categoría válida'
 };
