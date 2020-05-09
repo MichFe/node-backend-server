@@ -65,7 +65,7 @@ exports.validarPermisos = function (req, res, next) {
                         mensaje: 'Sus permisos aún no han sido definidos',
                         errors: { message: 'Contacte con un administrador para que configure sus permisos' }
                     });
-                }   
+                }                   
 
                 var permiso = permisos[0].permisos.filter((permisoOfPermisos) => {
                     return (permisoOfPermisos.url === url && permisoOfPermisos.method === method);
