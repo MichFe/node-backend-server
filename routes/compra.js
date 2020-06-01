@@ -460,38 +460,106 @@ app.put('/:id', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos,
             });
         }
 
-        //Propiedades a actualizar
-        (body.requisiciones) ? compra.requisiciones = body.requisiciones : null;
-        (body.fechaCompra) ? compra.fechaCompra = body.fechaCompra : null;
-        (body.fechaCompromisoEntrega) ? compra.fechaCompromisoEntrega = body.fechaCompromisoEntrega : null;
-        (body.fechaReciboMercancia) ? compra.fechaReciboMercancia = body.fechaReciboMercancia : null;
-        (body.proveedor) ? compra.proveedor = body.proveedor : null;
-        (body.costoTotal) ? compra.costoTotal = body.costoTotal : null;
-        (body.montoPagado) ? compra.montoPagado = body.montoPagado : null;
-        (body.saldoPendiente) ? compra.saldoPendiente = body.saldoPendiente : null;
-        (body.estatusPago) ? compra.estatusPago = body.estatusPago : null;
-        (body.descripcionCompra) ? compra.descripcionCompra = body.descripcionCompra : null;
-        (body.comentarioCompras) ? compra.comentarioCompras = body.comentarioCompras : null;
-        (body.usuarioCreador) ? compra.usuarioCreador = body.usuarioCreador : null;
-        (body.estatusPedido) ? compra.estatusPedido = body.estatusPedido : null;
-        (body.tipoDeProveedor) ? compra.tipoDeProveedor = body.tipoDeProveedor : null;
+        //Validando si el total de la compra es distinto al total anterior, si es así, se actualiza el saldo pendiente por el nuevo total menos los pagos registrdos
+        if (compra.costoTotal != body.costoTotal) {
 
-        compra.save((err, compraActualizada) => {
+            compra.saldoPendiente = body.costoTotal;
 
-            if (err) {
-                return res.status(500).json({
-                    ok: false,
-                    mensaje: "Error al actualizar compra",
-                    errors: err
+            //Sumamos los pagos recibidos
+            Pago.find({
+                compra: id
+            })
+            .exec((err, pagos)=>{                
+
+                if(err){
+                    return res.status(500).json({
+                        ok: false,
+                        mensaje: "Error al buscar pagos asociados a la compra",
+                        errors: err
+                    });
+                }
+
+                //Sumamos los pagos
+                let totalPagado = 0;
+
+                pagos.forEach((pago)=>{
+                    totalPagado += pago.monto;
+                });                
+                
+                //Restamos el total pagado al nuevo saldo pendiente
+                compra.saldoPendiente = compra.saldoPendiente - totalPagado;
+
+                //Propiedades a actualizar
+                (body.requisiciones) ? compra.requisiciones = body.requisiciones : null;
+                (body.fechaCompra) ? compra.fechaCompra = body.fechaCompra : null;
+                (body.fechaCompromisoEntrega) ? compra.fechaCompromisoEntrega = body.fechaCompromisoEntrega : null;
+                (body.fechaReciboMercancia) ? compra.fechaReciboMercancia = body.fechaReciboMercancia : null;
+                (body.proveedor) ? compra.proveedor = body.proveedor : null;
+                (body.costoTotal) ? compra.costoTotal = body.costoTotal : null;
+                (body.montoPagado) ? compra.montoPagado = body.montoPagado : null;
+                (body.estatusPago) ? compra.estatusPago = body.estatusPago : null;
+                (body.descripcionCompra) ? compra.descripcionCompra = body.descripcionCompra : null;
+                (body.comentarioCompras) ? compra.comentarioCompras = body.comentarioCompras : null;
+                (body.usuarioCreador) ? compra.usuarioCreador = body.usuarioCreador : null;
+                (body.estatusPedido) ? compra.estatusPedido = body.estatusPedido : null;
+                (body.tipoDeProveedor) ? compra.tipoDeProveedor = body.tipoDeProveedor : null;
+
+                compra.save((err, compraActualizada) => {
+
+                    if (err) {
+                        return res.status(500).json({
+                            ok: false,
+                            mensaje: "Error al actualizar compra",
+                            errors: err
+                        });
+                    }
+
+                    res.status(200).json({
+                        ok: true,
+                        mensaje: "El compra se actualizó exitosamente",
+                        compra: compraActualizada
+                    });
                 });
-            }
-
-            res.status(200).json({
-                ok: true,
-                mensaje: "El compra se actualizó exitosamente",
-                compra: compraActualizada
+                
             });
-        });
+
+        }else{
+            
+            (body.saldoPendiente) ? compra.saldoPendiente = body.saldoPendiente : null;
+            //Propiedades a actualizar
+            (body.requisiciones) ? compra.requisiciones = body.requisiciones : null;
+            (body.fechaCompra) ? compra.fechaCompra = body.fechaCompra : null;
+            (body.fechaCompromisoEntrega) ? compra.fechaCompromisoEntrega = body.fechaCompromisoEntrega : null;
+            (body.fechaReciboMercancia) ? compra.fechaReciboMercancia = body.fechaReciboMercancia : null;
+            (body.proveedor) ? compra.proveedor = body.proveedor : null;
+            (body.costoTotal) ? compra.costoTotal = body.costoTotal : null;
+            (body.montoPagado) ? compra.montoPagado = body.montoPagado : null;
+            (body.estatusPago) ? compra.estatusPago = body.estatusPago : null;
+            (body.descripcionCompra) ? compra.descripcionCompra = body.descripcionCompra : null;
+            (body.comentarioCompras) ? compra.comentarioCompras = body.comentarioCompras : null;
+            (body.usuarioCreador) ? compra.usuarioCreador = body.usuarioCreador : null;
+            (body.estatusPedido) ? compra.estatusPedido = body.estatusPedido : null;
+            (body.tipoDeProveedor) ? compra.tipoDeProveedor = body.tipoDeProveedor : null;
+
+            compra.save((err, compraActualizada) => {
+
+                if (err) {
+                    return res.status(500).json({
+                        ok: false,
+                        mensaje: "Error al actualizar compra",
+                        errors: err
+                    });
+                }
+
+                res.status(200).json({
+                    ok: true,
+                    mensaje: "El compra se actualizó exitosamente",
+                    compra: compraActualizada
+                });
+            });
+        }
+
+        
     });
 });
 //===============================================
