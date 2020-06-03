@@ -461,7 +461,7 @@ app.put('/:id', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos,
         }
 
         //Validando si el total de la compra es distinto al total anterior, si es así, se actualiza el saldo pendiente por el nuevo total menos los pagos registrdos
-        if (compra.costoTotal != body.costoTotal) {
+        if (compra.costoTotal != body.costoTotal && body.costoTotal) {
 
             compra.saldoPendiente = body.costoTotal;
 
@@ -502,7 +502,7 @@ app.put('/:id', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos,
                 (body.comentarioCompras) ? compra.comentarioCompras = body.comentarioCompras : null;
                 (body.usuarioCreador) ? compra.usuarioCreador = body.usuarioCreador : null;
                 (body.estatusPedido) ? compra.estatusPedido = body.estatusPedido : null;
-                (body.tipoDeProveedor) ? compra.tipoDeProveedor = body.tipoDeProveedor : null;
+                (body.tipoDeProveedor) ? compra.tipoDeProveedor = body.tipoDeProveedor : null;                
 
                 compra.save((err, compraActualizada) => {
 
