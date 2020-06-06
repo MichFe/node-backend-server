@@ -118,42 +118,50 @@ app.post('/', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (
         monto: body.monto,
         tipoDePago: body.tipoDePago,
         fecha: body.fecha
-    });
+    });    
 
-    pago.save((err, pagoGuardado) => {
+    Compra.findById( body.compra )
+        .exec( (err, compra)=>{
 
-        if (err) {
-            return res.status(500).json({
-                ok: false,
-                mensaje: 'Error al guardar pago',
-                errors: err
-            });
-        }
+                if (err) {
+                  return res.status(500).json({
+                    ok: false,
+                    mensaje: "Error al buscar compra",
+                    errors: err
+                  });
+                }
 
-        //Actualizamos pago en la compra
-        Compra.findById(pago.compra)
-            .exec((err, compra) => {
+            if (!compra) {
+                return res.status(400).json({
+                    ok: false,
+                    mensaje: 'No existe la compra a la cual se desea registrar el pago',
+                    errors: { message: 'La compra no existe en la base de datos' }
+                });
+            }
+
+            if( compra.saldoPendiente <= 0 ){
+                return res.status(400).json({
+                    ok: false,
+                    mensaje: 'El saldo pendiente es menor al pago o inexistente, favor de verificar',
+                    errors: { message: 'El saldo pendiente de la compra es menor al pago o 0s, favor de verificar.' }
+                });
+            }
+
+            pago.save((err, pagoGuardado) => {
+                
                 if (err) {
                     return res.status(500).json({
                         ok: false,
-                        mensaje: 'Error al buscar compra',
+                        mensaje: 'Error al guardar pago',
                         errors: err
                     });
                 }
 
-                if (!compra) {
-                    return res.status(400).json({
-                        ok: false,
-                        mensaje: 'No existe la compra a la cual se desea registrar el pago',
-                        errors: { message: 'La compra no existe en la base de datos' }
-                    });
-                }
-
+                //Actualizamos pago en la compra
                 //Propiedades a actualizar
                 (compra.montoPagado + pagoGuardado.monto >= compra.costoTotal) ? compra.montoPagado = compra.costoTotal : compra.montoPagado += pagoGuardado.monto;
                 (compra.saldoPendiente <= pagoGuardado.monto) ? compra.saldoPendiente = 0 : compra.saldoPendiente -= pagoGuardado.monto;
                 (compra.saldoPendiente <= 0) ? compra.estatusPago = 'Liquidada' : compra.estatusPago = 'Saldo Pendiente';
-
 
                 compra.save((err, compraActualizada) => {
                     if (err) {
@@ -177,14 +185,11 @@ app.post('/', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (
                         mensaje: 'Pago registrado exitosamente',
                         pago: pagoGuardado
                     });
-
                 });
-
             });
+        });
 
-
-
-    });
+    
 
 });
 //======================================================================
@@ -270,7 +275,7 @@ app.delete('/:pagoId', mdAutenticacion.verificarToken, mdAutenticacion.validarPe
             }
 
             //Actualizamos pago en la compra
-            Compra.findById(pagoEliminado.compra)
+            Compra.findById( pagoEliminado.compra )
                 .exec((err, compra) => {
                     if (err) {
                         return res.status(500).json({
@@ -289,36 +294,45 @@ app.delete('/:pagoId', mdAutenticacion.verificarToken, mdAutenticacion.validarPe
                     }
 
                     //Actualizando Totales en compra
-                    compra.montoPagado -= pagoEliminado.monto;
-                    compra.saldoPendiente += pagoEliminado.monto;
-                    (compra.saldoPendiente <= 0) ? compra.estatusPago = 'Liquidada' : compra.estatusPago = 'Saldo Pendiente';
-
-
-                    compra.save((err, compraActualizada) => {
-                        if (err) {
-                            return res.status(500).json({
-                                ok: false,
-                                mensaje: 'Error al actualizar compra',
-                                errors: err
-                            });
-                        }
-
-                        if (!compraActualizada) {
-                            return res.status(400).json({
-                                ok: false,
-                                mensaje: 'No existe la compra a la cual se desea eliminar el pago',
-                                errors: { message: 'La compra no existe en la base de datos' }
-                            });
-                        }
-
-                        res.status(200).json({
-                            ok: true,
-                            mensaje: 'Pago eliminado exitosamente',
-                            pago: pagoEliminado
+                    Pago.find({ 
+                        compra:compra._id
+                     }).exec( (err, pagos)=>{
+                        
+                        let totalPagadoALaCompra = 0;
+                        
+                        pagos.forEach((pago)=>{
+                            totalPagadoALaCompra += pago.monto;
                         });
 
-                    });
+                        compra.montoPagado = totalPagadoALaCompra;
+                        compra.saldoPendiente = compra.costoTotal - compra.montoPagado;
+                        (compra.saldoPendiente <= 0) ? compra.estatusPago = 'Liquidada' : compra.estatusPago = 'Saldo Pendiente';
 
+                         compra.save((err, compraActualizada) => {
+                             if (err) {
+                                 return res.status(500).json({
+                                     ok: false,
+                                     mensaje: 'Error al actualizar compra',
+                                     errors: err
+                                 });
+                             }
+
+                             if (!compraActualizada) {
+                                 return res.status(400).json({
+                                     ok: false,
+                                     mensaje: 'No existe la compra a la cual se desea eliminar el pago',
+                                     errors: { message: 'La compra no existe en la base de datos' }
+                                 });
+                             }
+
+                             res.status(200).json({
+                                 ok: true,
+                                 mensaje: 'Pago eliminado exitosamente',
+                                 pago: pagoEliminado
+                             });
+
+                         });
+                     });
                 });
 
 
