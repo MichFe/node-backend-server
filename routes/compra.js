@@ -486,10 +486,17 @@ app.put('/:id', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos,
                     totalPagado += pago.monto;
                 });                
                 
-                //Restamos el total pagado al nuevo saldo pendiente
+                // Restamos el total pagado al nuevo saldo pendiente
                 compra.saldoPendiente = compra.saldoPendiente - totalPagado;
 
-                //Propiedades a actualizar
+                // Validamos si la compra esta liquidada o no
+                if( compra.saldoPendiente <= 0 ){
+                    compra.estatusPago = 'Liquidada';
+                }else{
+                    compra.estatusPago = 'Saldo Pendiente';
+                }
+
+                // Propiedades a actualizar
                 (body.requisiciones) ? compra.requisiciones = body.requisiciones : null;
                 (body.fechaCompra) ? compra.fechaCompra = body.fechaCompra : null;
                 (body.fechaCompromisoEntrega) ? compra.fechaCompromisoEntrega = body.fechaCompromisoEntrega : null;
