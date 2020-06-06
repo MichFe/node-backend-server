@@ -488,6 +488,7 @@ app.put('/:id', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos,
                 
                 // Restamos el total pagado al nuevo saldo pendiente
                 compra.saldoPendiente = compra.saldoPendiente - totalPagado;
+                compra.montoPagado = totalPagado;
 
                 // Validamos si la compra esta liquidada o no
                 if( compra.saldoPendiente <= 0 ){
