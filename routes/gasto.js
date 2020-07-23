@@ -552,6 +552,50 @@ app.get('/', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (r
 //======================================================================
 
 //======================================================================
+// Obtener gastos por categoría en un rango de fecha
+//======================================================================
+app.get('/gastosPorCategoria', mdAutenticacion.verificarToken, ( req, res ) => {
+    let fechaInicial = new Date( req.query.fechaInicial );
+    let fechaFinal = new Date( req.query.fechaFinal );
+
+    Gasto.aggregate([
+        {
+            $match: {
+                fecha: { $gte: fechaInicial, $lte: fechaFinal }
+            }
+        },
+        {
+            $group: {
+                _id: "$categoria",
+                gastoTotal: { $sum: "$monto" }
+            }
+        }
+    ], ( err, gastos ) => {        
+
+            if (err) {
+                return res.status(400).json({
+                    ok: false,
+                    mensaje: 'Error al consultar gastos por categoría',
+                    errors: err
+                });
+            }
+
+            res.status(200).json({
+                ok: true,
+                mensaje: 'Consulta de gastos por categoría exitosa',
+                gastosPorCategoria: gastos
+            });
+
+
+
+    });
+
+});
+//======================================================================
+// Obtener gastos por categoría ( mensuales )
+//======================================================================
+
+//======================================================================
 // Registrar gasto
 //======================================================================
 app.post('/', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (req, res) => {
@@ -770,10 +814,12 @@ app.delete('/:gastoId', mdAutenticacion.verificarToken, mdAutenticacion.validarP
 //======================================================================
 
 
+
+
 //==================================================
 // Funciones
 //==================================================
-function calcularGastosMensuales(gastos) {
+function calcularGastosMensuales( gastos ) {
     var gastosMensuales = [
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
     ];

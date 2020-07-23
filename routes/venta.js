@@ -614,7 +614,7 @@ app.post('/', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (
 
     });
 
-    venta.save((err, ventaGuardada) => {
+    venta.save( async (err, ventaGuardada) => {
 
         if (err) {
             return res.status(400).json({
@@ -623,6 +623,9 @@ app.post('/', mdAutenticacion.verificarToken, mdAutenticacion.validarPermisos, (
                 errors: err
             });
         }
+
+        // Populating client name
+        await ventaGuardada.populate("cliente", "nombre").execPopulate();        
 
         res.status(201).json({
             ok: true,
